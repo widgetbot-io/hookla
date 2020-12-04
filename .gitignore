@@ -5,9 +5,6 @@
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio and Webstorm
 # Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
 
-.idea
-.idea/*
-
 ## File-based project format:
 *.iws
 
@@ -61,8 +58,6 @@ gradle-app.setting
 hs_err_pid*
 
 #### scala ####
-
-*.class
 *.log
 
 # sbt specific
