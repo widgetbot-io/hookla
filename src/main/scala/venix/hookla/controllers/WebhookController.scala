@@ -23,8 +23,10 @@ class WebhookController @Inject()(
     println("hit")
 
     provider match {
-      case None => NotFound(new Exception(s"no provider supported with id $providerId"))
-      case Some(value) => Ok("memes haha")
+      case None => Ok("success")
+      case Some(provider) => {
+        Ok("success but actually a success")
+      }
     }
   }
 }
