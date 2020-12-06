@@ -6,15 +6,25 @@ import io.finch.Endpoint
 import io.circe.Json
 import io.finch.circe._
 import io.finch._
+import javax.inject.Inject
 
-class WebhookController extends BaseController {
-  def endpoints = process
+import venix.hookla.services.ProviderService
 
-  def process: Endpoint[IO, String] = post(apiBase :: "process" :: jsonBody[Json] :: headersAll) { (body: Json, headers: Map[String, String]) =>
-    println(body)
+class WebhookController @Inject()(
+  providerService: ProviderService
+) extends BaseController {
+  def endpoints: Endpoint[IO, String] = process
 
-    println(headers)
+  def pathProviderId: Endpoint[IO, String] = path[String]
 
-    Ok("meme")
+  def process: Endpoint[IO, String] = post("process" :: pathProviderId :: jsonBody[Json] :: headersAll) { (providerId: String, body: Json, headers: Map[String, String]) =>
+    val provider = providerService.getById(providerId)
+
+    println("hit")
+
+    provider match {
+      case None => NotFound(new Exception(s"no provider supported with id $providerId"))
+      case Some(value) => Ok("memes haha")
+    }
   }
 }
