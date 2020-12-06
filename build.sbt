@@ -35,7 +35,8 @@ libraryDependencies ++= Seq(
   "io.circe" %% "circe-parser" % circeVersion,
   "io.circe" %% "circe-config" % circeConfVersion,
 
-  "io.getquill" %% "quill-async-postgres" % "3.5.2"
+  "io.getquill" %% "quill-async-postgres" % "3.5.2",
+  "net.katsstuff" %% "ackcord-core" % "0.17.1"
 )
 
 scalacOptions ++= Seq(
