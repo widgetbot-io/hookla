@@ -19,7 +19,7 @@ object App extends TwitterServer {
   private val webhookController = injector.instance[WebhookController]
 
   val service: Service[http.Request, http.Response] = Bootstrap
-    .serve[Application.Json](webhookController.process)
+    .serve[Application.Json](webhookController.endpoints)
     .toService
 
 

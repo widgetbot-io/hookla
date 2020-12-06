@@ -8,10 +8,9 @@ import io.finch.circe._
 import io.finch._
 
 class WebhookController extends BaseController {
-  val headersAll = root.map(_.headerMap.toMap)
+  def endpoints = process
 
-
-  def process: Endpoint[IO, String] = post("process" :: jsonBody[Json] :: headersAll) { (body: Json, headers: Map[String, String]) =>
+  def process: Endpoint[IO, String] = post(apiBase :: "process" :: jsonBody[Json] :: headersAll) { (body: Json, headers: Map[String, String]) =>
     println(body)
 
     println(headers)
