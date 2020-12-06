@@ -1,6 +1,7 @@
 package venix.hookla
 
 import com.google.inject.AbstractModule
+import com.twitter.finagle.http
 import io.circe.config.parser
 import io.getquill.{CamelCase, PostgresAsyncContext, SnakeCase}
 import net.codingwell.scalaguice.ScalaModule
