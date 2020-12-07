@@ -1,7 +1,7 @@
-name: "Test"
+name: "Staging"
 on: push
 jobs:
-    docker-build-publish:
+    changelog:
       name: Build
       runs-on: ubuntu-latest
       steps:
@@ -10,3 +10,6 @@ jobs:
           uses: TriPSs/conventional-changelog-action@v3
           with:
             github-token: ${{ secrets.github_token }}
+            git-user-name: 'WidgetBot Changelogs'
+            git-user-email: 'system@widgetbot.io'
+            tag-prefix: 'v'
