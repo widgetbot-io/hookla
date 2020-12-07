@@ -1,10 +1,8 @@
 package venix.hookla.models
 
-import java.util.{Date, UUID}
+import java.util.UUID
 
 case class User (
     id: UUID,
-    discordId: String,
-
-    createdAt: Date
+    discordId: String
 )
