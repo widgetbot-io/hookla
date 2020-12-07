@@ -5,8 +5,8 @@ import java.util.{Date, UUID}
 case class DiscordWebhook(
   id: UUID,
   userId: UUID,
-  discordWebhookId: UUID,
-  token: String,
-    
+  discordWebhookId: String,
+  discordWebhookToken: String,
+
   createdAt: Date
 )

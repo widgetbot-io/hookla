@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS provider_settings (
             ON UPDATE CASCADE
             ON DELETE CASCADE,
 
+    slug VARCHAR(64) NOT NULL,
     token VARCHAR(32) UNIQUE NOT NULL,
     createdAt TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
