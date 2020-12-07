@@ -1,0 +1,10 @@
+name: "Test"
+on: push
+jobs:
+    docker-build-publish:
+      name: Build
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v2
+        - name: Conventional Changelog Action
+          uses: TriPSs/conventional-changelog-action@v3
