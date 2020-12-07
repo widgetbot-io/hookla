@@ -1,6 +1,6 @@
 package venix.hookla.actors
 
-import akka.actor.typed.Behavior
+import akka.actor.typed.{ActorRef, Behavior}
 import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
 import venix.hookla.models.ProviderSettings
 import venix.hookla.types.GithubPushPayload
@@ -19,10 +19,10 @@ object Github {
 }
 
 object GithubEventHandler {
-  def apply(): Behavior[Github.Event] =
-    Behaviors.setup(ctx => new GithubEventHandlerBehaviour(ctx))
+  def apply(discord: ActorRef[Discord.Command]): Behavior[Github.Event] =
+    Behaviors.setup(ctx => new GithubEventHandlerBehaviour(ctx, discord))
 
-  class GithubEventHandlerBehaviour(context: ActorContext[Github.Event]) extends AbstractBehavior[Github.Event](context) {
+  class GithubEventHandlerBehaviour(context: ActorContext[Github.Event], discord: ActorRef[Discord.Command]) extends AbstractBehavior[Github.Event](context) {
     import Github._
 
     override def onMessage(e: Event): Behavior[Event] =

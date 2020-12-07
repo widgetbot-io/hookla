@@ -6,15 +6,11 @@ import net.codingwell.scalaguice.ScalaModule
 import venix.hookla.actors._
 import venix.hookla.util.play.AkkaGuiceSupport
 
-class ActorModule(injector: Injector) extends AbstractModule with ScalaModule with AkkaGuiceSupport {
+class ChildActorsModule(injector: Injector) extends AbstractModule with ScalaModule with AkkaGuiceSupport {
   import net.codingwell.scalaguice.InjectorExtensions._
 
   override def configure(): Unit = {
-    val eventHandler = EventHandler(
-      injector.instance[ActorRef[Gitlab.Event]],
-      injector.instance[ActorRef[Github.Event]]
-    )
-
-    bindTypedActor(eventHandler, "event-handler")
+    bindTypedActor(GitlabEventHandler(injector.instance[ActorRef[Discord.Command]]), "gitlab-event-handler")
+    bindTypedActor(GithubEventHandler(injector.instance[ActorRef[Discord.Command]]), "github-event-handler")
   }
 }

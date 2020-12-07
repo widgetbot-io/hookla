@@ -9,17 +9,18 @@ import org.flywaydb.core.Flyway
 import venix.hookla.controllers.WebhookController
 import io.circe.generic.auto._
 import io.finch.circe._
-import venix.hookla.modules.{ActorModule, AkkaModule, MainModule}
+import venix.hookla.modules.{ActorModule, AkkaModule, ChildActorsModule, MainModule}
 
 object App extends TwitterServer {
   import net.codingwell.scalaguice.InjectorExtensions._
   import venix.hookla.util.ExceptionEncoder._
 
   protected val injector = Guice.createInjector(new MainModule, new AkkaModule)
-  protected val actorInjector = injector.createChildInjector(new ActorModule(injector))
+  protected val actorInjector = injector.createChildInjector(new ChildActorsModule(injector))
+  protected val finalInjector = injector.createChildInjector(new ActorModule(actorInjector))
   private val config = injector.instance[HooklaConfig]
 
-  private val webhookController = actorInjector.instance[WebhookController]
+  private val webhookController = finalInjector.instance[WebhookController]
 
   val service: Service[http.Request, http.Response] = Bootstrap
     .serve[Application.Json](webhookController.endpoints)

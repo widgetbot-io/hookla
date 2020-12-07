@@ -1,6 +1,6 @@
 package venix.hookla.actors
 
-import akka.actor.typed.Behavior
+import akka.actor.typed.{ActorRef, Behavior}
 import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
 
 object Gitlab {
@@ -17,10 +17,10 @@ object Gitlab {
 }
 
 object GitlabEventHandler {
-  def apply(): Behavior[Gitlab.Event] =
-    Behaviors.setup(ctx => new GitlabEventHandlerBehaviour(ctx))
+  def apply(discord: ActorRef[Discord.Command]): Behavior[Gitlab.Event] =
+    Behaviors.setup(ctx => new GitlabEventHandlerBehaviour(ctx, discord))
 
-  class GitlabEventHandlerBehaviour(context: ActorContext[Gitlab.Event]) extends AbstractBehavior[Gitlab.Event](context) {
+  class GitlabEventHandlerBehaviour(context: ActorContext[Gitlab.Event], discord: ActorRef[Discord.Command]) extends AbstractBehavior[Gitlab.Event](context) {
     import Gitlab._
 
     override def onMessage(e: Event): Behavior[Event] =
