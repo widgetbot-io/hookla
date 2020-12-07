@@ -4,8 +4,12 @@ import cats.syntax.functor._
 import io.circe.{Decoder, Encoder}
 import io.circe.generic.auto._
 import io.circe.syntax._
+import venix.hookla.actors.Github
+import venix.hookla.models.ProviderSettings
 
-sealed trait GithubPayload
+sealed trait GithubPayload {
+  def toEvent(providerSettings: ProviderSettings): Github.Event
+}
 
 case class GithubCommit (
   message: String
@@ -34,11 +38,15 @@ case class GithubPushPayload (
   pusher: GithubPusher,
   sender: GithubSender,
   repository: GithubRepository
-) extends GithubPayload
+) extends GithubPayload {
+  override def toEvent(providerSettings: ProviderSettings): Github.Event = Github.PushEvent(this, providerSettings)
+}
 
 case class GithubIssuePayload(
   action: String
-) extends GithubPayload
+) extends GithubPayload {
+  override def toEvent(providerSettings: ProviderSettings): Github.Event = ???
+}
 
 object GithubPayloads {
   implicit val encodeEvent: Encoder[GithubPayload] = Encoder.instance {

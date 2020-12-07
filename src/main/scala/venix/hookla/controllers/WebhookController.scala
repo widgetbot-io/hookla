@@ -29,32 +29,27 @@ class WebhookController @Inject()(
   def endpoints = process
 
   def process: Endpoint[IO, String] = post("process" :: path[String] :: jsonBody[Json] :: headersAll) { (token: String, body: Json, headers: Map[String, String]) =>
-    providerSettingsService.getByToken(token) map { providerSettings: Option[ProviderSettings] =>
-      providerSettings match {
-        case None => Unauthorized(new Exception("invalid token"))
-        case Some(providerSettings) =>
-          println(s"fetched data for provider ${providerSettings.slug}")
+    providerSettingsService.getByToken(token) map {
+      case None => Unauthorized(new Exception("invalid token"))
+      case Some(providerSettings) =>
+        println(s"fetched data for provider ${providerSettings.slug}")
 
-          body.as[GithubPayload] match {
-            case Left(error) => println(error)
-            case Right(value) => println(value)
-          }
+        body.as[GithubPayload] match {
+          case Left(error) => println(error)
+          case Right(value) =>
+            actor ! value.toEvent(providerSettings)
+        }
 
-          discordActor ! SendEmbedToDiscord(OutgoingEmbed(
-            description = Some("Description type beat"),
-            author = Some(OutgoingEmbedAuthor("viction", None, Some("https://i.viction.dev/assets/images/avi.png"))),
-            url = Some("https://github.com/widgetbot-io/hookla"),
-            timestamp = Some(OffsetDateTime.now()),
-            color = Some(Colours.PUSH),
-            footer = Some(OutgoingEmbedFooter("widgetbot-io/hookla:develop", Some("https://i.viction.dev/assets/images/avi.png")))
-          ))
+//        discordActor ! SendEmbedToDiscord(OutgoingEmbed(
+//          description = Some("Description type beat"),
+//          author = Some(OutgoingEmbedAuthor("viction", None, Some("https://i.viction.dev/assets/images/avi.png"))),
+//          url = Some("https://github.com/widgetbot-io/hookla"),
+//          timestamp = Some(OffsetDateTime.now()),
+//          color = Some(Colours.PUSH),
+//          footer = Some(OutgoingEmbedFooter("widgetbot-io/hookla:develop", Some("https://i.viction.dev/assets/images/avi.png")))
+//        ))
 
-          actor ! Gitlab.PushEvent("test")
-          actor ! Github.PushEvent("test")
-
-          Ok("success")
-
-      }
+        Ok("success")
     }
   }
 }

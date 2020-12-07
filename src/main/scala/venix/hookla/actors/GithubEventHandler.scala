@@ -2,6 +2,8 @@ package venix.hookla.actors
 
 import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
+import venix.hookla.models.ProviderSettings
+import venix.hookla.types.GithubPushPayload
 
 object Github {
   sealed trait Event extends EventHandlerCommand
@@ -13,7 +15,7 @@ object Github {
     eventHeader = Some("X-GitHub-Event"),
   )
 
-  final case class PushEvent(eee: String) extends Event
+  final case class PushEvent(payload: GithubPushPayload, providerSettings: ProviderSettings) extends Event
 }
 
 object GithubEventHandler {
@@ -25,8 +27,8 @@ object GithubEventHandler {
 
     override def onMessage(e: Event): Behavior[Event] =
       e match {
-        case PushEvent(eee) =>
-          println(s"aaaaa: ${eee}")
+        case PushEvent(payload, providerSettings) =>
+          println(s"aaaaa: $payload $providerSettings")
           // make the embed
           // send to discord
           this
