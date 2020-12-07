@@ -49,7 +49,7 @@ class WebhookController @Inject()(
           url = Some("https://github.com/widgetbot-io/hookla"),
           timestamp = Some(OffsetDateTime.now()),
           color = Some(0x333333),
-          footer = Some(OutgoingEmbedFooter("widgetbot-io/hookla:master", Some("https://i.viction.dev/assets/images/avi.png")))
+          footer = Some(OutgoingEmbedFooter("widgetbot-io/hookla:develop", Some("https://i.viction.dev/assets/images/avi.png")))
         )
 
         val payload = OutgoingWebhookPayload(embed :: Nil)
