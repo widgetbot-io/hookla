@@ -1,4 +1,8 @@
-# 0.1.0 (2020-12-07)
+## [0.1.1](https://github.com/widgetbot-io/hookla/compare/v0.1.0...v0.1.1) (2020-12-07)
+
+
+
+# [0.1.0](https://github.com/widgetbot-io/hookla/compare/b776da2f55814c8abcb349fa71ff57521b3800bf...v0.1.0) (2020-12-07)
 
 
 ### Features
