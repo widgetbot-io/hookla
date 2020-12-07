@@ -13,6 +13,7 @@ import venix.hookla.modules.{ActorModule, AkkaModule, MainModule}
 
 object App extends TwitterServer {
   import net.codingwell.scalaguice.InjectorExtensions._
+  import venix.hookla.util.ExceptionEncoder._
 
   protected val injector = Guice.createInjector(new MainModule, new AkkaModule)
   protected val actorInjector = injector.createChildInjector(new ActorModule(injector))
