@@ -15,7 +15,7 @@ object Github {
   val provider = Provider(
     "github",
     "GitHub",
-    "https://i.viction.dev/assets/images/avi.png",
+    "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
     eventHeader = Some("X-GitHub-Event"),
   )
 
@@ -37,11 +37,11 @@ object GithubEventHandler {
 
           discord ! SendEmbedToDiscord(discordWebhook, OutgoingEmbed(
             description = Some("Description type beat"),
-            author = Some(OutgoingEmbedAuthor("viction", None, Some("https://i.viction.dev/assets/images/avi.png"))),
+            author = Some(OutgoingEmbedAuthor(payload.pusher.name, None, Some(payload.sender.avatar_url))),
             url = Some(payload.repository.html_url),
             timestamp = Some(OffsetDateTime.now()),
             color = Some(Colours.PUSH),
-            footer = Some(OutgoingEmbedFooter(s"${payload.repository.full_name}:$branchName", Some("https://i.viction.dev/assets/images/avi.png")))
+            footer = Some(OutgoingEmbedFooter(s"${payload.repository.full_name}:$branchName", Some(provider.logo)))
           ))
 
           this

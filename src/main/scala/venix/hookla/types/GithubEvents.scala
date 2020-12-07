@@ -46,7 +46,7 @@ case class GithubPushPayload (
 case class GithubIssuePayload(
   action: String
 ) extends GithubPayload {
-  override def toEvent(discordWebhook: DiscordWebhook): Github.Event = ???
+  override def toEvent(discordWebhook: DiscordWebhook): Github.Event = Github.IssueEvent(this, discordWebhook)
 }
 
 object GithubPayloads {
