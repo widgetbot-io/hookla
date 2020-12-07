@@ -13,3 +13,4 @@ jobs:
             git-user-name: 'WidgetBot Changelogs'
             git-user-email: 'system@widgetbot.io'
             tag-prefix: 'v'
+            skip-on-empty: 'false'
