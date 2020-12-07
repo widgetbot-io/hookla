@@ -1,13 +1,15 @@
-package venix.hookla
+package venix.hookla.modules
 
 import com.google.inject.AbstractModule
 import io.circe.config.parser
-import io.getquill.{CamelCase, PostgresAsyncContext, SnakeCase}
+import io.circe.generic.auto._
+import io.getquill.{CamelCase, PostgresAsyncContext}
 import net.codingwell.scalaguice.ScalaModule
 import scala.concurrent.ExecutionContext
-import io.circe.generic.auto._
+import venix.hookla.HooklaConfig
+import venix.hookla.util.play.AkkaGuiceSupport
 
-class MainModule extends AbstractModule with ScalaModule {
+class MainModule extends AbstractModule with ScalaModule with AkkaGuiceSupport {
   val config: HooklaConfig =
     parser
       .decode[HooklaConfig]()
@@ -18,6 +20,7 @@ class MainModule extends AbstractModule with ScalaModule {
 
   private def providePostgres: PostgresAsyncContext[CamelCase] =
     new PostgresAsyncContext(CamelCase, "postgres")
+
 
   override def configure(): Unit = {
     bind[HooklaConfig].toInstance(config)

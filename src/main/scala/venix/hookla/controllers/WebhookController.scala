@@ -1,5 +1,12 @@
 package venix.hookla.controllers
 
+import akka.NotUsed
+import akka.actor.typed.scaladsl.Behaviors
+import akka.actor.typed.scaladsl.LoggerOps
+import akka.actor.typed.{ActorRef, ActorSystem, Behavior, Terminated}
+import cats.effect._
+import io.circe.generic.auto._
+import com.google.inject.{Inject, Singleton}
 import ackcord.data.{OutgoingEmbed, OutgoingEmbedAuthor, OutgoingEmbedFooter}
 import cats.effect._
 import io.finch.Endpoint
@@ -15,9 +22,10 @@ import java.time.OffsetDateTime
 import javax.inject.Inject
 import venix.hookla.services.ProviderService
 import io.circe.generic.semiauto._
-
+import venix.hookla.actors.{EventHandler, EventHandlerCommand, Github, Gitlab, GitlabEventHandler}
+  
 case class OutgoingWebhookPayload(
-    embeds: List[OutgoingEmbed]
+  embeds: List[OutgoingEmbed]
 )
 
 object OutgoingWebhookPayload {
@@ -25,6 +33,7 @@ object OutgoingWebhookPayload {
 }
 
 class WebhookController @Inject()(
+  actor: ActorRef[EventHandlerCommand],
   providerService: ProviderService
 ) extends BaseController {
   import ackcord.data.DiscordProtocol._ // Codecs for Discord Objects.
@@ -34,7 +43,7 @@ class WebhookController @Inject()(
       .withTls("discordapp.com")
       .newService("discordapp.com:443")
 
-  def endpoints: Endpoint[IO, String] = process
+  def endpoints = process
 
   def pathProviderId: Endpoint[IO, String] = path[String]
   def process: Endpoint[IO, String] = post("process" :: pathProviderId :: jsonBody[Json] :: headersAll) { (providerId: String, body: Json, headers: Map[String, String]) =>
@@ -70,7 +79,10 @@ class WebhookController @Inject()(
           println(ex)
         }
 
-        Ok("success")
-    }
+    actor ! Gitlab.PushEvent("test")
+    actor ! Github.PushEvent("test")
+
+    Ok("success")
+
   }
 }
