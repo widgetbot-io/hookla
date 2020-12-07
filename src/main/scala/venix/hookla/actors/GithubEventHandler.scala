@@ -6,6 +6,13 @@ import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
 object Github {
   sealed trait Event extends EventHandlerCommand
 
+  val provider = Provider(
+    "github",
+    "GitHub",
+    "https://i.viction.dev/assets/images/avi.png",
+    eventHeader = Some("X-GitHub-Event"),
+  )
+
   final case class PushEvent(eee: String) extends Event
 }
 

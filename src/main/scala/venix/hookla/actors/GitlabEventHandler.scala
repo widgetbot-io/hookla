@@ -6,6 +6,13 @@ import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
 object Gitlab {
   sealed trait Event extends EventHandlerCommand
 
+  val provider = Provider(
+    "gitlab",
+    "Gitlab",
+    "https://i.viction.dev/assets/images/avi.png",
+    eventHeader = Some("X-Gitlab-Event")
+  )
+
   final case class PushEvent(eee: String) extends Event
 }
 
