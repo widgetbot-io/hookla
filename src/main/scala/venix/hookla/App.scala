@@ -9,11 +9,12 @@ import org.flywaydb.core.Flyway
 import venix.hookla.controllers.WebhookController
 import io.circe.generic.auto._
 import io.finch.circe._
+import venix.hookla.modules.{ActorModule, AkkaModule, MainModule}
 
 object App extends TwitterServer {
   import net.codingwell.scalaguice.InjectorExtensions._
 
-  protected val injector = Guice.createInjector(new BaseModule, new AkkaModule)
+  protected val injector = Guice.createInjector(new MainModule, new AkkaModule)
   protected val actorInjector = injector.createChildInjector(new ActorModule(injector))
   private val config = injector.instance[HooklaConfig]
 
