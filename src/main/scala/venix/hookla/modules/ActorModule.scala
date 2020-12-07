@@ -13,5 +13,6 @@ class ActorModule(injector: Injector) extends AbstractModule with ScalaModule wi
     val eventHandler = EventHandler(injector.instance[ActorRef[Gitlab.Event]], injector.instance[ActorRef[Github.Event]])
 
     bindTypedActor(eventHandler, "event-handler")
+    bindTypedActor(DiscordMessageSender(), "discord-message-sender")
   }
 }
