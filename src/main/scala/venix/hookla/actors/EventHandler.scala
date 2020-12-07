@@ -8,12 +8,12 @@ sealed trait EventHandlerEvent
 
 sealed trait EventHandlerCommand
 sealed trait GitlabEvent extends EventHandlerCommand
-sealed trait GithubEvent extends EventHandlerCommand
+//sealed trait GithubEvent extends EventHandlerCommand
 
 final case class PushEvent(eee: String) extends GitlabEvent
-final case class PipelineEvent(aaa: String) extends GitlabEvent
+//final case class PipelineEvent(aaa: String) extends GitlabEvent
 
-final case class IssueEvent(eee: String) extends GithubEvent
+//final case class IssueEvent(eee: String) extends GithubEvent
 //final case class EventToHandle(test: String) extends EventHandlerCommand
 
 object EventHandler {
@@ -41,27 +41,27 @@ object GitlabEventHandler {
           // make the embed
           // send to discord
           this
-        case PipelineEvent(aaa) =>
-          this
+        //        case PipelineEvent(aaa) =>
+        //          this
       }
   }
 }
 
-//object Main {
-//  def apply(): Behavior[NotUsed] =
-//    Behaviors.setup { ctx =>
-//      val gitlabEventHandler = ctx.spawn(GitlabEventHandler(), "gitlabEventHandler")
-//      val eventHandler = ctx.spawn(EventHandler(gitlabEventHandler), "eventHandler")
-//      Behaviors.receiveSignal {
-//        case (_, Terminated(_)) =>
-//          Behaviors.stopped
-//      }
-//    }
-//
-//  def main(args: Array[String]): Unit = {
-//    val as = ActorSystem(Main(), "Hookla")
-//
-//    val test = as.systemActorOf[GitlabEvent]
+object Main {
+  def apply(): Behavior[NotUsed] =
+    Behaviors.setup { ctx =>
+      val gitlabEventHandler = ctx.spawn(GitlabEventHandler(), "gitlabEventHandler")
+      val eventHandler = ctx.spawn(EventHandler(gitlabEventHandler), "eventHandler")
+      Behaviors.receiveSignal {
+        case (_, Terminated(_)) =>
+          Behaviors.stopped
+      }
+    }
+
+  def main(args: Array[String]): Unit = {
+    val as = ActorSystem(Main(), "Hookla")
+
+    val test = as.systemActorOf[GitlabEvent]
 //    test ! PushEvent("")
-//  }
-//}
+  }
+}
