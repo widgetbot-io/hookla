@@ -27,7 +27,6 @@ object OutgoingWebhookPayload {
 
 class WebhookController @Inject()(
   actor: ActorRef[EventHandlerCommand],
-  providerService: ProviderService
 ) extends BaseController { // Codecs for Discord Objects.
 
   private val discordClient: Service[http.Request, http.Response] =
