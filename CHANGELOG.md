@@ -1,3 +1,12 @@
+# [0.2.0](https://github.com/widgetbot-io/hookla/compare/v0.1.1...v0.2.0) (2020-12-07)
+
+
+### Features
+
+* Change branch to develop ([a603699](https://github.com/widgetbot-io/hookla/commit/a603699e27a5101980a6a59aa6a6f28f50fa4537))
+
+
+
 ## [0.1.1](https://github.com/widgetbot-io/hookla/compare/v0.1.0...v0.1.1) (2020-12-07)
 
 
