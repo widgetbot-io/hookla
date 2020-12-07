@@ -1,4 +1,4 @@
-package venix.hookla.providers
+package venix.hookla
 
 trait BaseProvider {
   def id: String
@@ -8,7 +8,4 @@ trait BaseProvider {
   def tokenHeader: Option[String] = None
   def eventBodyKey: Option[String] = None
   def tokenBodyKey: Option[String] = None
-
-  def events: List[BaseEvent]
 }
-
