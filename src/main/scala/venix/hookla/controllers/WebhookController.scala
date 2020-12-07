@@ -1,42 +1,34 @@
 package venix.hookla.controllers
 
-import akka.NotUsed
-import akka.actor.typed.scaladsl.Behaviors
-import akka.actor.typed.scaladsl.LoggerOps
-import akka.actor.typed.{ActorRef, ActorSystem, Behavior, Terminated}
-import cats.effect._
-import io.circe.generic.auto._
-import com.google.inject.{Inject, Singleton}
 import ackcord.data.{OutgoingEmbed, OutgoingEmbedAuthor, OutgoingEmbedFooter}
+import akka.actor.typed.ActorRef
 import cats.effect._
-import io.finch.Endpoint
+import com.google.inject.Inject
 import com.twitter.finagle._
 import com.twitter.finagle.http.Response
 import com.twitter.io.Buf
-import com.twitter.io.Buf.ByteArray
-import io.circe.{Codec, Encoder, Json, derivation}
-import io.circe.syntax._
-import io.finch.circe._
-import io.finch._
-import java.time.OffsetDateTime
-import javax.inject.Inject
-import venix.hookla.services.ProviderService
 import io.circe.generic.semiauto._
-import venix.hookla.actors.{EventHandler, EventHandlerCommand, Github, Gitlab, GitlabEventHandler}
+import io.circe.syntax._
+import io.circe.{Encoder, Json}
+import io.finch.{Endpoint, _}
+import io.finch.circe._
+import java.time.OffsetDateTime
+import venix.hookla.actors._
+import venix.hookla.services.ProviderService
   
 case class OutgoingWebhookPayload(
   embeds: List[OutgoingEmbed]
 )
 
 object OutgoingWebhookPayload {
+  import io.circe.generic.auto._
   implicit val outgoingWebhookPayloadEncoder: Encoder[OutgoingWebhookPayload] = deriveEncoder
 }
 
 class WebhookController @Inject()(
   actor: ActorRef[EventHandlerCommand],
   providerService: ProviderService
-) extends BaseController {
-  import ackcord.data.DiscordProtocol._ // Codecs for Discord Objects.
+) extends BaseController { // Codecs for Discord Objects.
 
   private val discordClient: Service[http.Request, http.Response] =
     Http.client.withSessionQualifier.noFailFast.withSessionQualifier.noFailureAccrual
@@ -69,20 +61,21 @@ class WebhookController @Inject()(
 
 
         discordClient(request) onSuccess { res: Response =>
-        res.reader.read() map { meme =>
-          val Buf.Utf8(str) = meme.get
-          println(str)
-        }
+          res.reader.read() map { meme =>
+            val Buf.Utf8(str) = meme.get
+            println(str)
+          }
 
           println("success", res)
         } onFailure { ex: Throwable =>
           println(ex)
         }
 
-    actor ! Gitlab.PushEvent("test")
-    actor ! Github.PushEvent("test")
+        actor ! Gitlab.PushEvent("test")
+        actor ! Github.PushEvent("test")
 
-    Ok("success")
+        Ok("success")
 
+    }
   }
 }

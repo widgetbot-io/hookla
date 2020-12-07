@@ -21,7 +21,6 @@ class MainModule extends AbstractModule with ScalaModule with AkkaGuiceSupport {
   private def providePostgres: PostgresAsyncContext[CamelCase] =
     new PostgresAsyncContext(CamelCase, "postgres")
 
-
   override def configure(): Unit = {
     bind[HooklaConfig].toInstance(config)
     bind[ExecutionContext].toInstance(scala.concurrent.ExecutionContext.Implicits.global)
