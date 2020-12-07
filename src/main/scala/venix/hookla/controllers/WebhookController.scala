@@ -23,7 +23,7 @@ class WebhookController @Inject()(
 ) extends BaseController {
   def endpoints = process
 
-  def process: Endpoint[IO, String] = post("process" :: path[String] :: jsonBody[Json] :: headersAll) { (providerId: String, body: Json, headers: Map[String, String]) =>
+  def process: Endpoint[IO, String] = post("process" :: path[String] :: jsonBody[Json] :: headersAll) { (token: String, body: Json, headers: Map[String, String]) =>
     val provider: Option[Provider] = None // TODO: logic for getting provider via providerId
 
     provider match {

@@ -1,7 +1,9 @@
 CREATE TABLE IF NOT EXISTS users (
-    id VARCHAR(64) PRIMARY KEY,
-    webhookToken VARCHAR(32) UNIQUE NOT NULL,
+    id uuid PRIMARY KEY,
+    discordId VARCHAR(64) UNIQUE NOT NULL,
+
     createdAt TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE INDEX idx_users_id ON users(id);
+CREATE INDEX idx_users_discordId ON users(discordId);
