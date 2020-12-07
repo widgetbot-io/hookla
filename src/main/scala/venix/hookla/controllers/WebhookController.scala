@@ -13,21 +13,20 @@ import io.circe.{Encoder, Json}
 import io.finch.{Endpoint, _}
 import io.finch.circe._
 import java.time.OffsetDateTime
+import venix.hookla.BaseProvider
 import venix.hookla.actors.Discord.SendEmbedToDiscord
 import venix.hookla.actors._
-import venix.hookla.services.ProviderService
 import venix.hookla.util.Colours
 
 class WebhookController @Inject()(
   actor: ActorRef[EventHandlerCommand],
   discordActor: ActorRef[Discord.Command],
-  providerService: ProviderService
 ) extends BaseController {
   def endpoints = process
 
   def pathProviderId: Endpoint[IO, String] = path[String]
   def process: Endpoint[IO, String] = post("process" :: pathProviderId :: jsonBody[Json] :: headersAll) { (providerId: String, body: Json, headers: Map[String, String]) =>
-    val provider = providerService.getById(providerId)
+    val provider: Option[BaseProvider] = None
 
     provider match {
       case None => Ok("success")
