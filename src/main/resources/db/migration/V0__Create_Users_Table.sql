@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS users (
+    id VARCHAR(64) PRIMARY KEY,
+    webhookToken VARCHAR(32) UNIQUE NOT NULL,
+    createdAt TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX idx_users_id ON users(id);

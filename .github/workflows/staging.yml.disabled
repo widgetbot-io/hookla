@@ -1,0 +1,16 @@
+name: "Staging"
+on: push
+jobs:
+    changelog:
+      name: Build
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v2
+        - name: Conventional Changelog Action
+          uses: TriPSs/conventional-changelog-action@v3
+          with:
+            github-token: ${{ secrets.github_token }}
+            git-user-name: 'WidgetBot Changelogs'
+            git-user-email: 'system@widgetbot.io'
+            tag-prefix: 'v'
+            skip-on-empty: 'false'

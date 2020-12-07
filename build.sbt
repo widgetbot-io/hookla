@@ -39,7 +39,8 @@ libraryDependencies ++= Seq(
   "io.circe" %% "circe-config" % circeConfVersion,
 
   "io.getquill" %% "quill-async-postgres" % "3.5.2",
-  "com.typesafe.akka" %% "akka-actor-typed" % akkaVersion
+  "com.typesafe.akka" %% "akka-actor-typed" % akkaVersion,
+  "net.katsstuff" %% "ackcord-core" % "0.17.1"
 )
 
 scalacOptions ++= Seq(
