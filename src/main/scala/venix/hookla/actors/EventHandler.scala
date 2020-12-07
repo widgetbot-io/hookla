@@ -8,20 +8,25 @@ trait EventHandlerCommand
 
 object EventHandler {
   def apply(
-    gitlab: ActorRef[Gitlab.Event]
+    gitlab: ActorRef[Gitlab.Event],
+    github: ActorRef[Github.Event]
   ): Behavior[EventHandlerCommand] =
     Behaviors.setup { context =>
       new EventHandlerBehaviour(
         context,
-        gitlab
+        gitlab,
+        github
       )
     }
 
-  class EventHandlerBehaviour(context: ActorContext[EventHandlerCommand], gitlabActor: ActorRef[Gitlab.Event]) extends AbstractBehavior[EventHandlerCommand](context) {
+  class EventHandlerBehaviour(context: ActorContext[EventHandlerCommand], gitlabActor: ActorRef[Gitlab.Event], githubActor: ActorRef[Github.Event]) extends AbstractBehavior[EventHandlerCommand](context) {
     override def onMessage(msg: EventHandlerCommand): Behavior[EventHandlerCommand] =
       msg match {
         case event: Gitlab.Event =>
           gitlabActor ! event
+          this
+        case event: Github.Event =>
+          githubActor ! event
           this
       }
   }

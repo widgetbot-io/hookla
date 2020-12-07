@@ -3,14 +3,13 @@ package venix.hookla
 import akka.NotUsed
 import akka.actor.typed.{ActorRef, ActorSystem => TypedActorSystem}
 import akka.actor.ActorSystem
-import com.google.inject.{AbstractModule, Inject, Injector, Provides}
-import com.twitter.finagle.http
+import com.google.inject.{AbstractModule, Injector}
 import io.circe.config.parser
-import io.getquill.{CamelCase, PostgresAsyncContext, SnakeCase}
+import io.getquill.{CamelCase, PostgresAsyncContext}
 import net.codingwell.scalaguice.ScalaModule
 import scala.concurrent.ExecutionContext
 import io.circe.generic.auto._
-import venix.hookla.actors.{EventHandler, GitlabEvent, GitlabEventHandler}
+import venix.hookla.actors.{EventHandler, Github, GithubEventHandler, Gitlab, GitlabEventHandler}
 import venix.hookla.util.play.AkkaGuiceSupport
 import akka.actor.typed.scaladsl.Behaviors
 
@@ -20,6 +19,7 @@ class AkkaModule extends AbstractModule with ScalaModule with AkkaGuiceSupport {
     bind[ActorSystem].toInstance(ActorSystem("hookla"))
 
     bindTypedActor(GitlabEventHandler(), "gitlab-event-handler")
+    bindTypedActor(GithubEventHandler(), "github-event-handler")
   }
 }
 
@@ -47,7 +47,7 @@ class ActorModule(injector: Injector) extends AbstractModule with ScalaModule wi
   import net.codingwell.scalaguice.InjectorExtensions._
 
   override def configure(): Unit = {
-    val eventHandler = EventHandler(injector.instance[ActorRef[GitlabEvent]])
+    val eventHandler = EventHandler(injector.instance[ActorRef[Gitlab.Event]], injector.instance[ActorRef[Github.Event]])
 
     bindTypedActor(eventHandler, "event-handler")
   }
