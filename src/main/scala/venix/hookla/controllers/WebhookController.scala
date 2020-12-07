@@ -15,6 +15,9 @@ import venix.hookla.actors._
 import venix.hookla.services.ProviderSettingsService
 import venix.hookla.models.ProviderSettings
 import venix.hookla.util.Colours
+import venix.hookla.types.GithubPayloads._
+import io.circe.parser.decode
+import venix.hookla.types.GithubPayload
 
 class WebhookController @Inject()(
   actor: ActorRef[EventHandlerCommand],
@@ -31,6 +34,11 @@ class WebhookController @Inject()(
         case None => Unauthorized(new Exception("invalid token"))
         case Some(providerSettings) =>
           println(s"fetched data for provider ${providerSettings.slug}")
+
+          body.as[GithubPayload] match {
+            case Left(error) => println(error)
+            case Right(value) => println(value)
+          }
 
           discordActor ! SendEmbedToDiscord(OutgoingEmbed(
             description = Some("Description type beat"),
