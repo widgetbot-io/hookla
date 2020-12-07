@@ -37,7 +37,7 @@ object DiscordMessageSender {
         .newService("discordapp.com:443")
 
     private def sendMessageToDiscord(payload: OutgoingWebhookPayload) = {
-      val request = http.Request(http.Method.Post, "/api/webhooks/ID/SECRET")
+      val request = http.Request(http.Method.Post, "/api/webhooks/785279268039950357/K45S4sLWAUQEI4qgdbcL1qvfFMbMd9MdRFgWTRH9QHCeR9-5_UG1-9N6jj8tFREv3wsV")
 
       request.write(payload.asJson.toString())
       request.headerMap.add("Content-Type", "application/json")

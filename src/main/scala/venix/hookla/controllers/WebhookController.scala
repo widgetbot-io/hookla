@@ -1,27 +1,19 @@
 package venix.hookla.controllers
 
-import ackcord.data.{OutgoingEmbed, OutgoingEmbedAuthor, OutgoingEmbedFooter}
 import akka.actor.typed.ActorRef
 import cats.effect._
 import com.google.inject.Inject
-import io.circe.generic.auto._
 import io.circe.Json
 import io.finch._
 import io.finch.circe._
-import java.time.OffsetDateTime
 import scala.concurrent.ExecutionContext
-import venix.hookla.actors.Discord.SendEmbedToDiscord
 import venix.hookla.actors._
 import venix.hookla.services.ProviderSettingsService
-import venix.hookla.models.ProviderSettings
-import venix.hookla.util.Colours
-import venix.hookla.types.GithubPayloads._
-import io.circe.parser.decode
 import venix.hookla.types.GithubPayload
+import venix.hookla.types.GithubPayloads._
 
 class WebhookController @Inject()(
   actor: ActorRef[EventHandlerCommand],
-  discordActor: ActorRef[Discord.Command],
   providerSettingsService: ProviderSettingsService
 )(
     implicit executionContext: ExecutionContext

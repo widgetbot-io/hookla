@@ -1,9 +1,13 @@
 package venix.hookla.actors
 
+import ackcord.data.{OutgoingEmbed, OutgoingEmbedAuthor, OutgoingEmbedFooter}
 import akka.actor.typed.{ActorRef, Behavior}
 import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
+import java.time.OffsetDateTime
+import venix.hookla.actors.Discord.SendEmbedToDiscord
 import venix.hookla.models.ProviderSettings
-import venix.hookla.types.GithubPushPayload
+import venix.hookla.types.{GithubIssuePayload, GithubPushPayload}
+import venix.hookla.util.Colours
 
 object Github {
   sealed trait Event extends EventHandlerCommand
@@ -16,6 +20,7 @@ object Github {
   )
 
   final case class PushEvent(payload: GithubPushPayload, providerSettings: ProviderSettings) extends Event
+  final case class IssueEvent(payload: GithubIssuePayload, providerSettings: ProviderSettings) extends Event
 }
 
 object GithubEventHandler {
@@ -28,9 +33,20 @@ object GithubEventHandler {
     override def onMessage(e: Event): Behavior[Event] =
       e match {
         case PushEvent(payload, providerSettings) =>
-          println(s"aaaaa: $payload $providerSettings")
-          // make the embed
-          // send to discord
+          val branchName = payload.ref.split('/').drop(2).mkString("/")
+
+          discord ! SendEmbedToDiscord(OutgoingEmbed(
+            description = Some("Description type beat"),
+            author = Some(OutgoingEmbedAuthor("viction", None, Some("https://i.viction.dev/assets/images/avi.png"))),
+            url = Some(payload.repository.html_url),
+            timestamp = Some(OffsetDateTime.now()),
+            color = Some(Colours.PUSH),
+            footer = Some(OutgoingEmbedFooter(s"${payload.repository.full_name}:$branchName", Some("https://i.viction.dev/assets/images/avi.png")))
+          ))
+
+          this
+        case IssueEvent(payload, providerSettings) =>
+          println(s"issue $payload $providerSettings")
           this
       }
   }

@@ -26,7 +26,8 @@ case class GithubSender (
 
 case class GithubRepository (
   name: String,
-  html_url: String
+  html_url: String,
+  full_name: String
 )
 
 case class GithubPushPayload (
