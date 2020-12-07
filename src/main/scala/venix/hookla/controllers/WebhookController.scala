@@ -8,13 +8,14 @@ import io.finch._
 import io.finch.circe._
 import scala.concurrent.ExecutionContext
 import venix.hookla.actors._
-import venix.hookla.services.ProviderSettingsService
+import venix.hookla.services.{DiscordWebhookService, ProviderSettingsService}
 import venix.hookla.types.GithubPayload
 import venix.hookla.types.GithubPayloads._
 
 class WebhookController @Inject()(
   actor: ActorRef[EventHandlerCommand],
-  providerSettingsService: ProviderSettingsService
+  providerSettingsService: ProviderSettingsService,
+  discordWebhookService: DiscordWebhookService
 )(
     implicit executionContext: ExecutionContext
 ) extends BaseController {
@@ -29,7 +30,11 @@ class WebhookController @Inject()(
         body.as[GithubPayload] match {
           case Left(error) => println(error)
           case Right(value) =>
-            actor ! value.toEvent(providerSettings)
+            discordWebhookService.getById(providerSettings.discordWebhookId) map {
+              case None => Ok("success")
+              case Some(discordWebhook) =>
+                actor ! value.toEvent(discordWebhook)
+            }
         }
 
 //        discordActor ! SendEmbedToDiscord(OutgoingEmbed(

@@ -9,11 +9,12 @@ import com.twitter.io.Buf
 import venix.hookla.types.OutgoingWebhookPayload
 import io.circe.generic.auto._
 import io.circe.syntax._
+import venix.hookla.models.DiscordWebhook
 
 object Discord {
   sealed trait Command
 
-  final case class SendEmbedToDiscord(embed: OutgoingEmbed) extends Command
+  final case class SendEmbedToDiscord(discordWebhook: DiscordWebhook, embed: OutgoingEmbed) extends Command
 }
 
 object DiscordMessageSender {
@@ -25,9 +26,9 @@ object DiscordMessageSender {
 
     override def onMessage(e: Command): Behavior[Command] =
       e match {
-        case SendEmbedToDiscord(embed) =>
+        case SendEmbedToDiscord(discordWebhook, embed) =>
           val payload = OutgoingWebhookPayload(List(embed))
-          sendMessageToDiscord(payload)
+          sendMessageToDiscord(discordWebhook.discordWebhookId, discordWebhook.discordWebhookToken, payload)
           this
       }
 
@@ -36,8 +37,8 @@ object DiscordMessageSender {
         .withTls("discordapp.com")
         .newService("discordapp.com:443")
 
-    private def sendMessageToDiscord(payload: OutgoingWebhookPayload) = {
-      val request = http.Request(http.Method.Post, "/api/webhooks/785279268039950357/K45S4sLWAUQEI4qgdbcL1qvfFMbMd9MdRFgWTRH9QHCeR9-5_UG1-9N6jj8tFREv3wsV")
+    private def sendMessageToDiscord(id: String, token: String, payload: OutgoingWebhookPayload) = {
+      val request = http.Request(http.Method.Post, s"/api/webhooks/$id/$token")
 
       request.write(payload.asJson.toString())
       request.headerMap.add("Content-Type", "application/json")

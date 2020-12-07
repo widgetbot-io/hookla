@@ -5,10 +5,10 @@ import io.circe.{Decoder, Encoder}
 import io.circe.generic.auto._
 import io.circe.syntax._
 import venix.hookla.actors.Github
-import venix.hookla.models.ProviderSettings
+import venix.hookla.models.DiscordWebhook
 
 sealed trait GithubPayload {
-  def toEvent(providerSettings: ProviderSettings): Github.Event
+  def toEvent(discordWebhook: DiscordWebhook): Github.Event
 }
 
 case class GithubCommit (
@@ -40,13 +40,13 @@ case class GithubPushPayload (
   sender: GithubSender,
   repository: GithubRepository
 ) extends GithubPayload {
-  override def toEvent(providerSettings: ProviderSettings): Github.Event = Github.PushEvent(this, providerSettings)
+  override def toEvent(discordWebhook: DiscordWebhook): Github.Event = Github.PushEvent(this, discordWebhook)
 }
 
 case class GithubIssuePayload(
   action: String
 ) extends GithubPayload {
-  override def toEvent(providerSettings: ProviderSettings): Github.Event = ???
+  override def toEvent(discordWebhook: DiscordWebhook): Github.Event = ???
 }
 
 object GithubPayloads {
