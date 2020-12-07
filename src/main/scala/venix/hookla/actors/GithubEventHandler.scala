@@ -3,18 +3,18 @@ package venix.hookla.actors
 import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
 
-object Gitlab {
+object Github {
   sealed trait Event extends EventHandlerCommand
 
   final case class PushEvent(eee: String) extends Event
 }
 
-object GitlabEventHandler {
-  def apply(): Behavior[Gitlab.Event] =
-    Behaviors.setup(ctx => new GitlabEventHandlerBehaviour(ctx))
+object GithubEventHandler {
+  def apply(): Behavior[Github.Event] =
+    Behaviors.setup(ctx => new GithubEventHandlerBehaviour(ctx))
 
-  class GitlabEventHandlerBehaviour(context: ActorContext[Gitlab.Event]) extends AbstractBehavior[Gitlab.Event](context) {
-    import Gitlab._
+  class GithubEventHandlerBehaviour(context: ActorContext[Github.Event]) extends AbstractBehavior[Github.Event](context) {
+    import Github._
 
     override def onMessage(e: Event): Behavior[Event] =
       e match {

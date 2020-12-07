@@ -1,20 +1,29 @@
 package venix.hookla
 
 import akka.NotUsed
-import akka.actor.typed.{ActorSystem => TypedActorSystem}
+import akka.actor.typed.{ActorRef, ActorSystem => TypedActorSystem}
 import akka.actor.ActorSystem
-import com.google.inject.AbstractModule
+import com.google.inject.{AbstractModule, Inject, Injector, Provides}
 import com.twitter.finagle.http
 import io.circe.config.parser
 import io.getquill.{CamelCase, PostgresAsyncContext, SnakeCase}
 import net.codingwell.scalaguice.ScalaModule
 import scala.concurrent.ExecutionContext
 import io.circe.generic.auto._
-import venix.hookla.actors.{EventHandler, GitlabEventHandler}
+import venix.hookla.actors.{EventHandler, GitlabEvent, GitlabEventHandler}
 import venix.hookla.util.play.AkkaGuiceSupport
 import akka.actor.typed.scaladsl.Behaviors
 
-class MainModule extends AbstractModule with AkkaGuiceSupport with ScalaModule {
+class AkkaModule extends AbstractModule with ScalaModule with AkkaGuiceSupport {
+  override def configure(): Unit = {
+    bind[TypedActorSystem[NotUsed]].toInstance(TypedActorSystem(Behaviors.ignore, "hookla"))
+    bind[ActorSystem].toInstance(ActorSystem("hookla"))
+
+    bindTypedActor(GitlabEventHandler(), "gitlab-event-handler")
+  }
+}
+
+class BaseModule extends AbstractModule with ScalaModule with AkkaGuiceSupport {
   val config: HooklaConfig =
     parser
       .decode[HooklaConfig]()
@@ -26,17 +35,20 @@ class MainModule extends AbstractModule with AkkaGuiceSupport with ScalaModule {
   private def providePostgres: PostgresAsyncContext[CamelCase] =
     new PostgresAsyncContext(CamelCase, "postgres")
 
+
   override def configure(): Unit = {
     bind[HooklaConfig].toInstance(config)
     bind[ExecutionContext].toInstance(scala.concurrent.ExecutionContext.Implicits.global)
     bind[PostgresAsyncContext[CamelCase]].toInstance(providePostgres)
-    bind[TypedActorSystem[NotUsed]].toInstance(TypedActorSystem(Behaviors.ignore, "hookla"))
-    bind[ActorSystem].toInstance(ActorSystem("hookla"))
+  }
+}
 
-//    val gitlabEventHandler = GitlabEventHandler()
-//
-//    bindTypedActor(gitlabEventHandler, "gitlab-event-handler")
-//
-//    val eventHandler = EventHandler(gitlabEventHandler)
+class ActorModule(injector: Injector) extends AbstractModule with ScalaModule with AkkaGuiceSupport {
+  import net.codingwell.scalaguice.InjectorExtensions._
+
+  override def configure(): Unit = {
+    val eventHandler = EventHandler(injector.instance[ActorRef[GitlabEvent]])
+
+    bindTypedActor(eventHandler, "event-handler")
   }
 }
