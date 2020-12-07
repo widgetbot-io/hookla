@@ -8,8 +8,12 @@ sealed trait EventHandlerEvent
 
 sealed trait EventHandlerCommand
 sealed trait GitlabEvent extends EventHandlerCommand
+sealed trait GithubEvent extends EventHandlerCommand
 
 final case class PushEvent(eee: String) extends GitlabEvent
+final case class PipelineEvent(aaa: String) extends GitlabEvent
+
+final case class IssueEvent(eee: String) extends GithubEvent
 //final case class EventToHandle(test: String) extends EventHandlerCommand
 
 object EventHandler {
@@ -34,6 +38,10 @@ object GitlabEventHandler {
     override def onMessage(e: GitlabEvent): Behavior[GitlabEvent] =
       e match {
         case PushEvent(eee) =>
+          // make the embed
+          // send to discord
+          this
+        case PipelineEvent(aaa) =>
           this
       }
   }
