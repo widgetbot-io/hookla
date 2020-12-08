@@ -11,13 +11,14 @@ sealed trait GithubPayload {
   def toEvent(discordWebhook: DiscordWebhook): Github.Event
 }
 
-case class GithubCommit (
-  message: String
-)
-
 case class GithubPusher (
   name: String,
   email: String
+)
+
+case class GithubCommit (
+  message: String,
+  author: GithubPusher
 )
 
 case class GithubSender (
