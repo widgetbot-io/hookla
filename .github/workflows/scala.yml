@@ -12,3 +12,7 @@ jobs:
         run: sbt clean compile
       - name: Prepare the docker files
         run: sbt docker:stage
+      - name: Build the DockerFile
+        run: docker build -t ghcr.io/widgetbot-io/hookla:${{github.sha}} target/docker/stage
+      - name: Push the Docker image
+        run: docker push ghcr.io/widgetbot-io/hookla:${{github.sha}}
