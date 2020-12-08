@@ -36,13 +36,13 @@ object GithubEventHandler {
       e match {
         case PushEvent(payload, discordWebhook) =>
           val branchName = payload.ref.split('/').drop(2).mkString("/")
-          val groupedCommits = payload.commits.groupBy(_.author.email).toSeq.map(_._2)
+          implicit val groupedCommits: Seq[Seq[GithubCommit]] = payload.commits.groupBy(_.author.email).toSeq.map(_._2)
 
           groupedCommits.length match {
             case 1 =>
               val description =
                 groupedCommits.head
-                  .map { c => s"${if (groupedCommits.head.length > 1) "- " else ""}${c.message.replaceAll("/\n$/", "")}" }
+                  .map(formatCommit(_, groupedCommits.head.length))
                   .mkString("\n")
                   .replaceAll("/\n$/", "")
 
@@ -61,7 +61,7 @@ object GithubEventHandler {
                 groupedCommits.map { d =>
                   EmbedField(
                     s"Commits from ${d.head.author.name}",
-                    d.map(c => s"${if (d.length > 1) "- " else ""}${c.message.replaceAll("/\n$/", "")}").mkString("\n").replaceAll("/\n$/", ""),
+                    d.map(formatCommit(_, d.length)).mkString("\n").replaceAll("/\n$/", ""),
                     Some(false)
                   )
                 }
@@ -94,5 +94,8 @@ object GithubEventHandler {
           println(s"issue $payload $providerSettings")
           this
       }
+
+    private def formatCommit(commit: GithubCommit, length: Int): String =
+      s"${if (length > 1) "- " else ""}${commit.message.replaceAll("/\n$/", "")}"
   }
 }
