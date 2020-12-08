@@ -1,0 +1,14 @@
+name: Docker
+on:
+  push:
+    branches:
+      - develop
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Compile the project
+        run: sbt clean compile
+      - name: Prepare the docker files
+        run: sbt docker:stage
