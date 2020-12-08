@@ -25,26 +25,17 @@ class WebhookController @Inject()(
     providerSettingsService.getByToken(token) map {
       case None => Unauthorized(new Exception("invalid token"))
       case Some(providerSettings) =>
-        println(s"fetched data for provider ${providerSettings.slug}")
+        logger.debug(s"fetched data for provider ${providerSettings.slug}")
 
         body.as[GithubPayload] match {
-          case Left(error) => println(error)
+          case Left(error) =>
+            logger.error(error.getMessage())
           case Right(value) =>
             discordWebhookService.getById(providerSettings.discordWebhookId) map {
-              case None => Ok("success")
-              case Some(discordWebhook) =>
-                actor ! value.toEvent(discordWebhook)
+              case Some(_) =>
+                actor ! value.toEvent(_)
             }
         }
-
-//        discordActor ! SendEmbedToDiscord(OutgoingEmbed(
-//          description = Some("Description type beat"),
-//          author = Some(OutgoingEmbedAuthor("viction", None, Some("https://i.viction.dev/assets/images/avi.png"))),
-//          url = Some("https://github.com/widgetbot-io/hookla"),
-//          timestamp = Some(OffsetDateTime.now()),
-//          color = Some(Colours.PUSH),
-//          footer = Some(OutgoingEmbedFooter("widgetbot-io/hookla:develop", Some("https://i.viction.dev/assets/images/avi.png")))
-//        ))
 
         Ok("success")
     }
