@@ -8,8 +8,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Clean any left-over files
+        run: sbt clean
       - name: Compile the project
-        run: sbt clean compile
+        run: sbt compile
       - name: Prepare the docker files
         run: sbt docker:stage
       - name: Build the DockerFile
