@@ -11,6 +11,8 @@ jobs:
       - uses: olafurpg/setup-scala@v10
       - name: Clean any left-over files
         run: sbt clean
+      - name: Login to docker
+        run: echo ${{ secrets.PAT }} | docker login ghcr.io --username yomanz --password-stdin
       - name: Compile the project and prepare docker files
         run: |
           sbt version
