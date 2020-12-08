@@ -1,8 +1,20 @@
+import sbt._
+import Keys._
+
 name := "hookla"
 
 version := "0.1"
 
 scalaVersion := "2.13.4"
+
+lazy val hookla = (project in file("."))
+  .enablePlugins(DockerPlugin)
+  .settings(dockerExposedPorts := Seq(8443))
+  .settings(dockerRepository := Some("ghcr.io"))
+  .settings(dockerUsername := Some("widgetbot-io"))
+  .settings(packageName in Docker := "hookla")
+  .settings(javaOptions += "-Dfile.encoding=UTF-8")
+  .settings(dockerBaseImage := "openjdk:8")
 
 //////////////////////////////////////////////////////////////////
 ////////////////////////   DEPENDENCIES   ////////////////////////
