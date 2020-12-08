@@ -10,10 +10,10 @@ jobs:
       - uses: actions/checkout@v2
       - name: Clean any left-over files
         run: sbt clean
-      - name: Compile the project
-        run: sbt compile
-      - name: Prepare the docker files
-        run: sbt docker:stage
+      - name: Compile the project and prepare docker files
+        run: |
+          sbt compile
+          sbt docker:stage
       - name: Build the DockerFile
         run: docker build -t ghcr.io/widgetbot-io/hookla:${{github.sha}} .
         working-directory: ./target/docker/stage
