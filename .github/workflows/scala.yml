@@ -8,13 +8,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - uses: olafurpg/setup-scala@v10
       - name: Clean any left-over files
         run: sbt clean
       - name: Compile the project and prepare docker files
         run: |
           sbt compile
           sbt docker:stage
-      - name: Build the DockerFile
-        run: docker build -t ghcr.io/widgetbot-io/hookla:${{github.sha}} target/docker/stage
-      - name: Push the Docker image
-        run: docker push ghcr.io/widgetbot-io/hookla:${{github.sha}}
+          docker build -t ghcr.io/widgetbot-io/hookla:${{github.sha}} target/docker/stage
+          docker push ghcr.io/widgetbot-io/hookla:${{github.sha}}
+#      - name: Build the DockerFile
+#        run: docker build -t ghcr.io/widgetbot-io/hookla:${{github.sha}} target/docker/stage
+#      - name: Push the Docker image
+#        run: docker push ghcr.io/widgetbot-io/hookla:${{github.sha}}
