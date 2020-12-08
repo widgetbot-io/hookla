@@ -1,10 +1,5 @@
 package venix.hookla.util.play
 
-
-import akka.Done
-import akka.actor.setup.ActorSystemSetup
-import akka.actor.setup.Setup
-import akka.actor.typed.Scheduler
 import akka.actor.Actor
 import akka.actor.ActorContext
 import akka.actor.ActorRef
@@ -29,9 +24,6 @@ object Akka {
     new ActorRefProvider(name, props)
 }
 
-/**
- * Provider for creating actor refs
- */
 class ActorRefProvider[T <: Actor: ClassTag](name: String, props: Props => Props) extends Provider[ActorRef] {
   @Inject private var actorSystem: ActorSystem = _
   @Inject private var injector: Injector = _
