@@ -15,7 +15,9 @@ jobs:
         run: |
           sbt compile
           sbt docker:stage
+          ls -la
           cd target/docker/stage
+          ls -la
           docker build -t ghcr.io/widgetbot-io/hookla:${{github.sha}} .
           docker push ghcr.io/widgetbot-io/hookla:${{github.sha}}
 #      - name: Build the DockerFile
