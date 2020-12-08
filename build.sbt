@@ -1,5 +1,6 @@
 import sbt._
 import Keys._
+import com.typesafe.sbt.packager.docker.DockerPermissionStrategy
 
 name := "hookla"
 
@@ -8,13 +9,18 @@ version := "0.1"
 scalaVersion := "2.13.4"
 
 lazy val hookla = (project in file("."))
-  .enablePlugins(DockerPlugin)
+  .enablePlugins(DockerPlugin, LauncherJarPlugin)
   .settings(dockerExposedPorts := Seq(8443))
   .settings(dockerRepository := Some("ghcr.io"))
   .settings(dockerUsername := Some("widgetbot-io"))
   .settings(packageName in Docker := "hookla")
-  .settings(javaOptions += "-Dfile.encoding=UTF-8")
-  .settings(dockerBaseImage := "openjdk:8")
+  .settings(dockerUpdateLatest := true)
+  .settings(dockerBaseImage := "gcr.io/distroless/java:11")
+  .settings(daemonUserUid in Docker := None)
+  .settings(daemonUser in Docker := "root")
+  .settings(dockerPermissionStrategy := DockerPermissionStrategy.None)
+  .settings(dockerEntrypoint := Seq("java", "-Xms1024m", "-Xmx1024m", "-XX:+AlwaysPreTouch", "-Dfile.encoding=UTF-8", "-jar",s"/opt/docker/lib/${(artifactPath in packageJavaLauncherJar).value.getName}"))
+  .settings(dockerCmd := Seq.empty)
 
 //////////////////////////////////////////////////////////////////
 ////////////////////////   DEPENDENCIES   ////////////////////////

@@ -13,6 +13,7 @@ jobs:
         run: sbt clean
       - name: Compile the project and prepare docker files
         run: |
+          sbt version
           sbt compile
           sbt docker:stage
           ls -la
