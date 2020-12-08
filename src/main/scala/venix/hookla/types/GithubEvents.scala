@@ -51,12 +51,12 @@ case class GithubIssuePayload(
 }
 
 object GithubPayloads {
-  implicit val encodeEvent: Encoder[GithubPayload] = Encoder.instance {
+  implicit val encodeGithubEvent: Encoder[GithubPayload] = Encoder.instance {
     case pushPayload: GithubPushPayload => pushPayload.asJson
     case issuePayload: GithubIssuePayload => issuePayload.asJson
   }
 
-  implicit val decodeEvent: Decoder[GithubPayload] =
+  implicit val decodeGithubEvent: Decoder[GithubPayload] =
     List[Decoder[GithubPayload]](
       Decoder[GithubPushPayload].widen,
       Decoder[GithubIssuePayload].widen,

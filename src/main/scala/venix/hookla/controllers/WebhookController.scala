@@ -9,8 +9,9 @@ import io.finch.circe._
 import scala.concurrent.ExecutionContext
 import venix.hookla.actors._
 import venix.hookla.services.{DiscordWebhookService, ProviderSettingsService}
-import venix.hookla.types.GithubPayload
+import venix.hookla.types.{GithubPayload, GitlabPayload}
 import venix.hookla.types.GithubPayloads._
+import venix.hookla.types.GitlabPayloads._
 
 class WebhookController @Inject()(
   actor: ActorRef[EventHandlerCommand],
@@ -27,15 +28,33 @@ class WebhookController @Inject()(
       case Some(providerSettings) =>
         logger.debug(s"fetched data for provider ${providerSettings.slug}")
 
-        body.as[GithubPayload] match {
-          case Left(error) =>
-            logger.error(error.getMessage())
-          case Right(value) =>
-            discordWebhookService.getById(providerSettings.discordWebhookId) map {
-              case Some(_) =>
-                actor ! value.toEvent(_)
+        providerSettings.slug match {
+          case "github" =>
+            body.as[GithubPayload] match {
+              case Left(error) =>
+//                logger.error(error.getMessage())
+              case Right(value) =>
+                discordWebhookService.getById(providerSettings.discordWebhookId) map {
+                  case None => ???
+                  case Some(v) =>
+                    actor ! value.toEvent(v)
+                }
             }
+          case "gitlab" =>
+            body.as[GitlabPayload] match {
+              case Left(error) =>
+//                logger.error(error.getMessage())
+              case Right(value) =>
+                discordWebhookService.getById(providerSettings.discordWebhookId) map {
+                  case None => ???
+                  case Some(v) =>
+                    actor ! value.toEvent(v)
+                }
+            }
+          case _ => ???
         }
+
+
 
         Ok("success")
     }
