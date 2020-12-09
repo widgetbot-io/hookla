@@ -13,17 +13,12 @@ jobs:
         run: sbt clean
       - name: Login to docker
         run: echo ${{ secrets.PAT }} | docker login ghcr.io --username yomanz --password-stdin
-      - name: Compile the project and prepare docker files
+      - name: Compile the project and push the docker image
         run: |
           sbt version
           sbt compile
           sbt docker:stage
-          ls -la
           cd target/docker/stage
-          ls -la
-          docker build -t ghcr.io/widgetbot-io/hookla:${{github.sha}} .
+          docker build -t ghcr.io/widgetbot-io/hookla:${{github.sha}} -t ghcr.io/widgetbot-io/hookla:latest .
           docker push ghcr.io/widgetbot-io/hookla:${{github.sha}}
-#      - name: Build the DockerFile
-#        run: docker build -t ghcr.io/widgetbot-io/hookla:${{github.sha}} target/docker/stage
-#      - name: Push the Docker image
-#        run: docker push ghcr.io/widgetbot-io/hookla:${{github.sha}}
+          docker push ghcr.io/widgetbot-io/hookla:latest
