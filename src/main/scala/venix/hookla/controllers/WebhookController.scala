@@ -32,7 +32,7 @@ class WebhookController @Inject()(
           case "github" =>
             body.as[GithubPayload] match {
               case Left(error) =>
-//                logger.error(error.getMessage())
+                logger.error(error.getMessage())
               case Right(value) =>
                 discordWebhookService.getById(providerSettings.discordWebhookId) map {
                   case None => ???
@@ -43,7 +43,7 @@ class WebhookController @Inject()(
           case "gitlab" =>
             body.as[GitlabPayload] match {
               case Left(error) =>
-//                logger.error(error.getMessage())
+                logger.error(error.getMessage())
               case Right(value) =>
                 discordWebhookService.getById(providerSettings.discordWebhookId) map {
                   case None => ???
@@ -53,8 +53,6 @@ class WebhookController @Inject()(
             }
           case _ => ???
         }
-
-
 
         Ok("success")
     }
