@@ -23,6 +23,7 @@ class WebhookController @Inject()(
   def endpoints = process
 
   def process: Endpoint[IO, String] = post("process" :: path[String] :: jsonBody[Json] :: headersAll) { (token: String, body: Json, headers: Map[String, String]) =>
+    println(body)
     providerSettingsService.getByToken(token) map {
       case None => Unauthorized(new Exception("invalid token"))
       case Some(providerSettings) =>

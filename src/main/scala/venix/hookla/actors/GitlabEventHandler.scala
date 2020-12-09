@@ -7,7 +7,7 @@ import java.time.OffsetDateTime
 import venix.hookla.actors.Discord.SendEmbedToDiscord
 import venix.hookla.actors.Github.provider
 import venix.hookla.models.DiscordWebhook
-import venix.hookla.types.{GitlabCommit, GitlabIssuePayload, GitlabPushPayload, Provider}
+import venix.hookla.types.{GitlabNotePayload, GitlabCommit, GitlabIssuePayload, GitlabPushPayload, Provider}
 import venix.hookla.util.Colours
 
 object Gitlab {
@@ -20,7 +20,8 @@ object Gitlab {
     eventHeader = Some("X-Gitlab-Event")
   )
 
-  final case class PushEvent(payload: GitlabPushPayload, discordWebhook: DiscordWebhook) extends Event
+  final case class NoteEvent(payload: GitlabNotePayload, discordWebhook: DiscordWebhook)  extends Event
+  final case class PushEvent(payload: GitlabPushPayload, discordWebhook: DiscordWebhook)   extends Event
   final case class IssueEvent(payload: GitlabIssuePayload, discordWebhook: DiscordWebhook) extends Event
 }
 
@@ -33,6 +34,29 @@ object GitlabEventHandler {
 
     override def onMessage(e: Event): Behavior[Event] =
       e match {
+        case NoteEvent(payload, discordWebhook) =>
+          var title = "Test"
+          val description = payload.object_attributes.note
+
+          payload.object_attributes.noteable_type match { // If it matches, we can .get
+            case "Commit" =>
+              title = s"Commit (${payload.commit.get.id.substring(7)})"
+            case "MergeRequest" =>
+              title = s"Merge Request #${payload.merge_request.get.iid}"
+            case "Issue" => ???
+            case "Snippet" => ???
+          }
+          discord ! SendEmbedToDiscord(discordWebhook, OutgoingEmbed(
+            title = Some(title),
+            description = Some(description),
+            author = Some(OutgoingEmbedAuthor(payload.user.name, None, Some(payload.user.avatar_url))),
+            url = Some(payload.project.web_url),
+            timestamp = Some(OffsetDateTime.now()),
+            color = Some(Colours.NOTE),
+            footer = Some(OutgoingEmbedFooter(payload.project.path_with_namespace, Some(Gitlab.provider.logo)))
+          ))
+          this
+
         case PushEvent(payload, discordWebhook) =>
           val branchName = payload.ref.split('/').drop(2).mkString("/")
           val groupedCommits: Seq[Seq[GitlabCommit]] = payload.commits.groupBy(_.author.email).toSeq.map(_._2)

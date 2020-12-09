@@ -42,6 +42,22 @@ case class GitlabCommit(
     removed: List[String]
 )
 
+case class GitlabMergeRequest(
+    id: Int,
+    iid: Int
+)
+
+case class GitlabObjectAttributes(
+    noteable_type: String,
+    note: String
+)
+
+case class GitlabUser(
+    name: String,
+    username: String,
+    avatar_url: String
+)
+
 case class GitlabPushPayload(
     object_kind: String,
     before: String,
@@ -61,6 +77,19 @@ case class GitlabPushPayload(
   override def toEvent(discordWebhook: DiscordWebhook): Gitlab.Event = Gitlab.PushEvent(this, discordWebhook)
 }
 
+case class GitlabNotePayload(
+    object_kind: String,
+    user: GitlabUser,
+    project_id: Int,
+    project: GitlabProject,
+    repository: GitlabRepository,
+    object_attributes: GitlabObjectAttributes,
+    commit: Option[GitlabCommit],
+    merge_request: Option[GitlabMergeRequest]
+) extends GitlabPayload {
+  override def toEvent(discordWebhook: DiscordWebhook): Gitlab.Event = Gitlab.NoteEvent(this, discordWebhook)
+}
+
 case class GitlabIssuePayload(
     action: String
 ) extends GitlabPayload {
@@ -69,13 +98,15 @@ case class GitlabIssuePayload(
 
 object GitlabPayloads {
   implicit val encodeGitlabEvent: Encoder[GitlabPayload] = Encoder.instance {
+    case notePayload: GitlabNotePayload   => notePayload.asJson
     case pushPayload: GitlabPushPayload   => pushPayload.asJson
     case issuePayload: GitlabIssuePayload => issuePayload.asJson
   }
 
   implicit val decodeGitlabEvent: Decoder[GitlabPayload] =
     List[Decoder[GitlabPayload]](
-      Decoder[GitlabPushPayload].widen,
-      Decoder[GitlabIssuePayload].widen,
+      Decoder[GitlabNotePayload].widen,
+//      Decoder[GitlabPushPayload].widen,
+//      Decoder[GitlabIssuePayload].widen,
     ).reduceLeft(_ or _)
 }
