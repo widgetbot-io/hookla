@@ -18,6 +18,8 @@ case class GitlabAuthor(
 
 case class GitlabProject(
     name: String,
+    path_with_namespace: String,
+    web_url: String,
     description: String,
     url: String
 )

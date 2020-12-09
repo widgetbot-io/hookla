@@ -40,6 +40,9 @@ object DiscordMessageSender {
     private def sendMessageToDiscord(id: String, token: String, payload: OutgoingWebhookPayload) = {
       val request = http.Request(http.Method.Post, s"/api/webhooks/$id/$token")
 
+      println("Sending following JSON to Discord...")
+      println(payload.asJson)
+
       request.write(payload.asJson.toString())
       request.headerMap.add("Content-Type", "application/json")
 

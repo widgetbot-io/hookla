@@ -16,7 +16,7 @@ object Gitlab {
   val provider = Provider(
     "gitlab",
     "Gitlab",
-    "https://i.viction.dev/assets/images/avi.png",
+    "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/GitLab_Logo.svg/1108px-GitLab_Logo.svg.png",
     eventHeader = Some("X-Gitlab-Event")
   )
 
@@ -43,15 +43,14 @@ object GitlabEventHandler {
                 groupedCommits.head
                   .map(c => formatCommit(c.message, groupedCommits.head.length))
                   .mkString("\n")
-                  .replaceAll("/\n$/", "")
 
               discord ! SendEmbedToDiscord(discordWebhook, OutgoingEmbed(
                 description = Some(description),
                 author = Some(OutgoingEmbedAuthor(payload.user_name, None, Some(payload.user_avatar))),
-                url = Some(payload.repository.url),
+                url = Some(payload.project.web_url),
                 timestamp = Some(OffsetDateTime.now()),
                 color = Some(Colours.PUSH),
-                footer = Some(OutgoingEmbedFooter(s"${payload.repository.name}:$branchName", Some(Gitlab.provider.logo)))
+                footer = Some(OutgoingEmbedFooter(s"${payload.project.path_with_namespace}:$branchName", Some(Gitlab.provider.logo)))
               ))
               this
             case x if(x > 1) =>
@@ -59,18 +58,18 @@ object GitlabEventHandler {
                 groupedCommits.map { d =>
                   EmbedField(
                     s"Commits from ${d.head.author.name}",
-                    d.map(c => formatCommit(c.message, d.length)).mkString("\n").replaceAll("/\n$/", ""),
+                    d.map(c => formatCommit(c.message, d.length)).mkString("\n"),
                     Some(false)
                   )
                 }
 
               discord ! SendEmbedToDiscord(discordWebhook, OutgoingEmbed(
                 author = Some(OutgoingEmbedAuthor(payload.user_name, None, Some(payload.user_avatar))),
-                url = Some(payload.repository.url),
+                url = Some(payload.project.web_url),
                 timestamp = Some(OffsetDateTime.now()),
                 fields = fields,
                 color = Some(Colours.PUSH),
-                footer = Some(OutgoingEmbedFooter(s"${payload.repository.name}:$branchName", Some(Gitlab.provider.logo)))
+                footer = Some(OutgoingEmbedFooter(s"${payload.project.path_with_namespace}:$branchName", Some(Gitlab.provider.logo)))
               ))
               this
             case _ =>
