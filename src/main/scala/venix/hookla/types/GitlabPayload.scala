@@ -106,7 +106,7 @@ object GitlabPayloads {
   implicit val decodeGitlabEvent: Decoder[GitlabPayload] =
     List[Decoder[GitlabPayload]](
       Decoder[GitlabNotePayload].widen,
-//      Decoder[GitlabPushPayload].widen,
-//      Decoder[GitlabIssuePayload].widen,
+      Decoder[GitlabPushPayload].widen,
+      Decoder[GitlabIssuePayload].widen,
     ).reduceLeft(_ or _)
 }
