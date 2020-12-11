@@ -20,7 +20,7 @@ object Gitlab {
     eventHeader = Some("X-Gitlab-Event")
   )
 
-  final case class NoteEvent(payload: GitlabNotePayload, discordWebhook: DiscordWebhook)  extends Event
+  final case class NoteEvent(payload: GitlabNotePayload, discordWebhook: DiscordWebhook)   extends Event
   final case class PushEvent(payload: GitlabPushPayload, discordWebhook: DiscordWebhook)   extends Event
   final case class IssueEvent(payload: GitlabIssuePayload, discordWebhook: DiscordWebhook) extends Event
 }
@@ -60,6 +60,8 @@ object GitlabEventHandler {
         case PushEvent(payload, discordWebhook) =>
           val branchName = payload.ref.split('/').drop(2).mkString("/")
           val groupedCommits: Seq[Seq[GitlabCommit]] = payload.commits.groupBy(_.author.email).toSeq.map(_._2)
+
+          handleBranches(payload, discordWebhook)
 
           groupedCommits.length match {
             case 1 =>
@@ -103,5 +105,29 @@ object GitlabEventHandler {
         case IssueEvent(_, _) =>
           this
       }
+
+    def handleBranches(payload: GitlabPushPayload, discordWebhook: DiscordWebhook) = {
+      val branchName = payload.ref.split('/').drop(2).mkString("/")
+
+      if (payload.before == "0000000000000000000000000000000000000000") { // Created
+        discord ! SendEmbedToDiscord(discordWebhook, OutgoingEmbed(
+          description = Some(s"New branch created: ${branchName}"),
+          author = Some(OutgoingEmbedAuthor(payload.user_name, None, Some(payload.user_avatar))),
+          url = Some(payload.project.web_url),
+          timestamp = Some(OffsetDateTime.now()),
+          color = Some(Colours.CREATED),
+          footer = Some(OutgoingEmbedFooter(s"${payload.project.path_with_namespace}:$branchName", Some(Gitlab.provider.logo)))
+        ))
+      } else if (payload.after == "0000000000000000000000000000000000000000") {// Deleted
+        discord ! SendEmbedToDiscord(discordWebhook, OutgoingEmbed(
+          description = Some(s"Branch deleted: ${branchName}"),
+          author = Some(OutgoingEmbedAuthor(payload.user_name, None, Some(payload.user_avatar))),
+          url = Some(payload.project.web_url),
+          timestamp = Some(OffsetDateTime.now()),
+          color = Some(Colours.DELETED),
+          footer = Some(OutgoingEmbedFooter(s"${payload.project.path_with_namespace}:$branchName", Some(Gitlab.provider.logo)))
+        ))
+      }
+    }
   }
 }
