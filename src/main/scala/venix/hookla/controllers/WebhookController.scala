@@ -6,6 +6,8 @@ import com.google.inject.Inject
 import io.circe.Json
 import io.finch._
 import io.finch.circe._
+import io.circe.syntax._
+import io.circe.generic.auto._
 import scala.concurrent.ExecutionContext
 import venix.hookla.actors._
 import venix.hookla.services.{DiscordWebhookService, ProviderSettingsService}
@@ -20,7 +22,17 @@ class WebhookController @Inject()(
 )(
     implicit executionContext: ExecutionContext
 ) extends BaseController {
-  def endpoints = process
+  def endpoints = process :+: getHookInfo
+
+  def getHookInfo: Endpoint[IO, Json] = get("process" :: path[String]) { token: String =>
+    providerSettingsService.getByToken(token) map {
+      case None => Unauthorized(new Exception("invalid token"))
+      case Some(providerSettings) =>
+        logger.debug(s"fetched data for provider ${providerSettings.slug}")
+
+      Ok(providerSettings.asJson)
+    }
+  }
 
   def process: Endpoint[IO, String] = post("process" :: path[String] :: jsonBody[Json] :: headersAll) { (token: String, body: Json, headers: Map[String, String]) =>
     println(body)
