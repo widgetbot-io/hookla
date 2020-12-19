@@ -6,6 +6,7 @@ case class ProviderSettings(
   id: UUID,
   userId: UUID,
   discordWebhookId: UUID,
+  optionsId: Option[UUID],
   slug: String,
   token: String
 )
