@@ -4,10 +4,11 @@ import com.google.inject.Inject
 import io.getquill.{CamelCase, PostgresAsyncContext}
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
-import venix.hookla.models.ProviderSettings
+import venix.hookla.models.{DiscordWebhook, EmbedOptions, ProviderSettings}
 
 class ProviderSettingsService @Inject()(
-  dbContext: PostgresAsyncContext[CamelCase]
+  dbContext: PostgresAsyncContext[CamelCase],
+  embedOptionsService: EmbedOptionsService
 )(
   implicit executionContext: ExecutionContext
 ) {
@@ -21,4 +22,9 @@ class ProviderSettingsService @Inject()(
 
   def getByToken(token: String): Future[Option[ProviderSettings]] =
     dbContext.run(providerSettings.filter(_.token == lift(token))).map(_.headOption)
+
+  def getOptionsForProvider(providerSettings: ProviderSettings): Future[Option[EmbedOptions]] =
+    providerSettings.optionsId.fold[Future[Option[EmbedOptions]]](Future.successful(None)) { id =>
+      embedOptionsService.getById(id)
+    }
 }

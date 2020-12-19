@@ -1,7 +1,9 @@
 package venix.hookla.actors
 
+import venix.hookla.models.EmbedOptions
+
 trait EventHandlerUtils {
-  protected def formatCommit(message: String, length: Int): String = {
+  protected def formatCommit(message: String, length: Int, embedOptions: Option[EmbedOptions]): String = {
     val privateDenotations = List("!", "$", "Revert !", "Revert $")
     val isPrivate = privateDenotations.exists(message.startsWith)
 

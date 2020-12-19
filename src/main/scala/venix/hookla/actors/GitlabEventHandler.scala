@@ -6,8 +6,8 @@ import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
 import java.time.OffsetDateTime
 import venix.hookla.actors.Discord.SendEmbedToDiscord
 import venix.hookla.actors.Github.provider
-import venix.hookla.models.DiscordWebhook
-import venix.hookla.types.{GitlabNotePayload, GitlabCommit, GitlabIssuePayload, GitlabPushPayload, Provider}
+import venix.hookla.models.{DiscordWebhook, EmbedOptions}
+import venix.hookla.types.{GitlabCommit, GitlabIssuePayload, GitlabNotePayload, GitlabPushPayload, Provider}
 import venix.hookla.util.Colours
 
 object Gitlab {
@@ -20,9 +20,9 @@ object Gitlab {
     eventHeader = Some("X-Gitlab-Event")
   )
 
-  final case class NoteEvent(payload: GitlabNotePayload, discordWebhook: DiscordWebhook)   extends Event
-  final case class PushEvent(payload: GitlabPushPayload, discordWebhook: DiscordWebhook)   extends Event
-  final case class IssueEvent(payload: GitlabIssuePayload, discordWebhook: DiscordWebhook) extends Event
+  final case class NoteEvent(payload: GitlabNotePayload, discordWebhook: DiscordWebhook, embedOptions: Option[EmbedOptions])   extends Event
+  final case class PushEvent(payload: GitlabPushPayload, discordWebhook: DiscordWebhook, embedOptions: Option[EmbedOptions])   extends Event
+  final case class IssueEvent(payload: GitlabIssuePayload, discordWebhook: DiscordWebhook, embedOptions: Option[EmbedOptions]) extends Event
 }
 
 object GitlabEventHandler {
@@ -34,7 +34,7 @@ object GitlabEventHandler {
 
     override def onMessage(e: Event): Behavior[Event] =
       e match {
-        case NoteEvent(payload, discordWebhook) =>
+        case NoteEvent(payload, discordWebhook, embedOptions) =>
           var title = "Test"
           val description = payload.object_attributes.note
 
@@ -57,7 +57,7 @@ object GitlabEventHandler {
           ))
           this
 
-        case PushEvent(payload, discordWebhook) =>
+        case PushEvent(payload, discordWebhook, embedOptions) =>
           val branchName = payload.ref.split('/').drop(2).mkString("/")
           val groupedCommits: Seq[Seq[GitlabCommit]] = payload.commits.groupBy(_.author.email).toSeq.map(_._2)
 
@@ -67,7 +67,7 @@ object GitlabEventHandler {
             case 1 =>
               val description =
                 groupedCommits.head
-                  .map(c => formatCommit(c.message, groupedCommits.head.length))
+                  .map(c => formatCommit(c.message, groupedCommits.head.length, embedOptions))
                   .mkString("\n")
 
               discord ! SendEmbedToDiscord(discordWebhook, OutgoingEmbed(
@@ -84,7 +84,7 @@ object GitlabEventHandler {
                 groupedCommits.map { d =>
                   EmbedField(
                     s"Commits from ${d.head.author.name}",
-                    d.map(c => formatCommit(c.message, d.length)).mkString("\n"),
+                    d.map(c => formatCommit(c.message, d.length, embedOptions)).mkString("\n"),
                     Some(false)
                   )
                 }
@@ -102,7 +102,7 @@ object GitlabEventHandler {
               println("_")
               this
           }
-        case IssueEvent(_, _) =>
+        case IssueEvent(_, _, _) =>
           this
       }
 

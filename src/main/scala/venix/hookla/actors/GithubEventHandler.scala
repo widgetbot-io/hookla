@@ -7,7 +7,7 @@ import java.time.OffsetDateTime
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 import venix.hookla.actors.Discord.SendEmbedToDiscord
-import venix.hookla.models.DiscordWebhook
+import venix.hookla.models.{DiscordWebhook, EmbedOptions}
 import venix.hookla.types.{GithubCommit, GithubIssuePayload, GithubPushPayload, Provider}
 import venix.hookla.util.Colours
 
@@ -21,8 +21,8 @@ object Github {
     eventHeader = Some("X-GitHub-Event"),
   )
 
-  final case class PushEvent(payload: GithubPushPayload, discordWebhook: DiscordWebhook) extends Event
-  final case class IssueEvent(payload: GithubIssuePayload, discordWebhook: DiscordWebhook) extends Event
+  final case class PushEvent(payload: GithubPushPayload, discordWebhook: DiscordWebhook, embedOptions: Option[EmbedOptions]) extends Event
+  final case class IssueEvent(payload: GithubIssuePayload, discordWebhook: DiscordWebhook, embedOptions: Option[EmbedOptions]) extends Event
 }
 
 object GithubEventHandler {
@@ -34,7 +34,7 @@ object GithubEventHandler {
 
     override def onMessage(e: Event): Behavior[Event] =
       e match {
-        case PushEvent(payload, discordWebhook) =>
+        case PushEvent(payload, discordWebhook, embedOptions) =>
           val branchName = payload.ref.split('/').drop(2).mkString("/")
           val groupedCommits: Seq[Seq[GithubCommit]] = payload.commits.groupBy(_.author.email).toSeq.map(_._2)
 
@@ -42,7 +42,7 @@ object GithubEventHandler {
             case 1 =>
               val description =
                 groupedCommits.head
-                  .map(c => formatCommit(c.message, groupedCommits.head.length))
+                  .map(c => formatCommit(c.message, groupedCommits.head.length, embedOptions))
                   .mkString("\n")
                   .replaceAll("/\n$/", "")
 
@@ -60,7 +60,7 @@ object GithubEventHandler {
                 groupedCommits.map { d =>
                   EmbedField(
                     s"Commits from ${d.head.author.name}",
-                    d.map(c => formatCommit(c.message, d.length)).mkString("\n").replaceAll("/\n$/", ""),
+                    d.map(c => formatCommit(c.message, d.length, embedOptions)).mkString("\n").replaceAll("/\n$/", ""),
                     Some(false)
                   )
                 }
@@ -78,8 +78,8 @@ object GithubEventHandler {
               println("_")
               this
           }
-        case IssueEvent(payload, providerSettings) =>
-          println(s"issue $payload $providerSettings")
+        case IssueEvent(payload, providerSettings, embedOptions) =>
+          println(s"issue $payload $providerSettings $embedOptions")
           this
       }
   }

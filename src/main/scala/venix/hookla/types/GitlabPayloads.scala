@@ -5,7 +5,7 @@ import io.circe.{Decoder, Encoder}
 import io.circe.generic.auto._
 import io.circe.syntax._
 import venix.hookla.actors.Gitlab
-import venix.hookla.models.DiscordWebhook
+import venix.hookla.models.{DiscordWebhook, EmbedOptions}
 
 sealed trait GitlabPayload extends BasePayload[Gitlab.Event]
 
@@ -72,7 +72,7 @@ case class GitlabPushPayload(
     commits: List[GitlabCommit],
     total_commits_count: Int
 ) extends GitlabPayload {
-  override def toEvent(discordWebhook: DiscordWebhook) = Gitlab.PushEvent(this, discordWebhook)
+  override def toEvent(discordWebhook: DiscordWebhook, embedOptions: Option[EmbedOptions]) = Gitlab.PushEvent(this, discordWebhook, embedOptions)
 }
 
 case class GitlabNotePayload(
@@ -85,13 +85,13 @@ case class GitlabNotePayload(
     commit: Option[GitlabCommit],
     merge_request: Option[GitlabMergeRequest]
 ) extends GitlabPayload {
-  override def toEvent(discordWebhook: DiscordWebhook)= Gitlab.NoteEvent(this, discordWebhook)
+  override def toEvent(discordWebhook: DiscordWebhook, embedOptions: Option[EmbedOptions])= Gitlab.NoteEvent(this, discordWebhook, embedOptions)
 }
 
 case class GitlabIssuePayload(
     action: String
 ) extends GitlabPayload {
-  override def toEvent(discordWebhook: DiscordWebhook) = Gitlab.IssueEvent(this, discordWebhook)
+  override def toEvent(discordWebhook: DiscordWebhook, embedOptions: Option[EmbedOptions]) = Gitlab.IssueEvent(this, discordWebhook, embedOptions)
 }
 
 object GitlabPayloads {

@@ -18,10 +18,4 @@ class DiscordWebhookService @Inject()(
 
   def getById(id: UUID): Future[Option[DiscordWebhook]] =
     dbContext.run(discordWebhooks.filter(_.id == lift(id))).map(_.headOption)
-
-
-  def getEmbedOptionsForWebhook(discordWebhook: DiscordWebhook): Future[Option[EmbedOptions]] =
-    discordWebhook.embedOptionsId.fold[Future[Option[EmbedOptions]]](Future.successful(None)) { id =>
-      embedOptionsService.getById(id)
-    }
 }

@@ -54,8 +54,10 @@ class WebhookController @Inject()(
           case Right(body) =>
             discordWebhookService.getById(providerSettings.discordWebhookId) map {
               case None => ???
-              case Some(v) =>
-                actor ! body.toEvent(v)
+              case Some(hook) =>
+                providerSettingsService.getOptionsForProvider(providerSettings) map { options =>
+                  actor ! body.toEvent(hook, options)
+                }
             }
         }
 
