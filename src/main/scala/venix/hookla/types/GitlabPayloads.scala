@@ -7,9 +7,7 @@ import io.circe.syntax._
 import venix.hookla.actors.Gitlab
 import venix.hookla.models.DiscordWebhook
 
-sealed trait GitlabPayload {
-  def toEvent(discordWebhook: DiscordWebhook): Gitlab.Event
-}
+sealed trait GitlabPayload extends BasePayload[Gitlab.Event]
 
 case class GitlabAuthor(
     name: String,
@@ -74,7 +72,7 @@ case class GitlabPushPayload(
     commits: List[GitlabCommit],
     total_commits_count: Int
 ) extends GitlabPayload {
-  override def toEvent(discordWebhook: DiscordWebhook): Gitlab.Event = Gitlab.PushEvent(this, discordWebhook)
+  override def toEvent(discordWebhook: DiscordWebhook) = Gitlab.PushEvent(this, discordWebhook)
 }
 
 case class GitlabNotePayload(
@@ -87,13 +85,13 @@ case class GitlabNotePayload(
     commit: Option[GitlabCommit],
     merge_request: Option[GitlabMergeRequest]
 ) extends GitlabPayload {
-  override def toEvent(discordWebhook: DiscordWebhook): Gitlab.Event = Gitlab.NoteEvent(this, discordWebhook)
+  override def toEvent(discordWebhook: DiscordWebhook)= Gitlab.NoteEvent(this, discordWebhook)
 }
 
 case class GitlabIssuePayload(
     action: String
 ) extends GitlabPayload {
-  override def toEvent(discordWebhook: DiscordWebhook): Gitlab.Event = Gitlab.IssueEvent(this, discordWebhook)
+  override def toEvent(discordWebhook: DiscordWebhook) = Gitlab.IssueEvent(this, discordWebhook)
 }
 
 object GitlabPayloads {

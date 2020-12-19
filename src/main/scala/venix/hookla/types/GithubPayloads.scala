@@ -7,9 +7,7 @@ import io.circe.syntax._
 import venix.hookla.actors.Github
 import venix.hookla.models.DiscordWebhook
 
-sealed trait GithubPayload {
-  def toEvent(discordWebhook: DiscordWebhook): Github.Event
-}
+sealed trait GithubPayload extends BasePayload[Github.Event]
 
 case class GithubPusher (
   name: String,
@@ -41,13 +39,13 @@ case class GithubPushPayload (
   sender: GithubSender,
   repository: GithubRepository
 ) extends GithubPayload {
-  override def toEvent(discordWebhook: DiscordWebhook): Github.Event = Github.PushEvent(this, discordWebhook)
+  override def toEvent(discordWebhook: DiscordWebhook) = Github.PushEvent(this, discordWebhook)
 }
 
 case class GithubIssuePayload(
   action: String
 ) extends GithubPayload {
-  override def toEvent(discordWebhook: DiscordWebhook): Github.Event = Github.IssueEvent(this, discordWebhook)
+  override def toEvent(discordWebhook: DiscordWebhook) = Github.IssueEvent(this, discordWebhook)
 }
 
 object GithubPayloads {
