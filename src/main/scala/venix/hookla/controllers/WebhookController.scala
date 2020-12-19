@@ -3,7 +3,9 @@ package venix.hookla.controllers
 import akka.actor.typed.ActorRef
 import cats.effect._
 import com.google.inject.Inject
-import io.circe.Json
+import io.circe.Decoder.Result
+import cats.syntax.functor._
+import io.circe.{Decoder, Json}
 import io.finch._
 import io.finch.circe._
 import io.circe.syntax._
@@ -11,7 +13,7 @@ import io.circe.generic.auto._
 import scala.concurrent.ExecutionContext
 import venix.hookla.actors._
 import venix.hookla.services.{DiscordWebhookService, ProviderSettingsService}
-import venix.hookla.types.{GithubPayload, GitlabPayload}
+import venix.hookla.types.{BasePayload, GithubPayload, GitlabPayload}
 import venix.hookla.types.GithubPayloads._
 import venix.hookla.types.GitlabPayloads._
 
@@ -41,30 +43,20 @@ class WebhookController @Inject()(
       case Some(providerSettings) =>
         logger.debug(s"fetched data for provider ${providerSettings.slug}")
 
-        providerSettings.slug match {
-          case "github" =>
-            body.as[GithubPayload] match {
-              case Left(error) =>
-                logger.error(error.getMessage())
-              case Right(value) =>
-                discordWebhookService.getById(providerSettings.discordWebhookId) map {
-                  case None => ???
-                  case Some(v) =>
-                    actor ! value.toEvent(v)
-                }
+
+        val decoded = providerSettings.slug match {
+          case "github" => body.as[GithubPayload]
+          case "gitlab" => body.as[GitlabPayload]
+        }
+
+        decoded match {
+          case Left(err) => logger.error(err.getMessage())
+          case Right(body) =>
+            discordWebhookService.getById(providerSettings.discordWebhookId) map {
+              case None => ???
+              case Some(v) =>
+                actor ! body.toEvent(v)
             }
-          case "gitlab" =>
-            body.as[GitlabPayload] match {
-              case Left(error) =>
-                logger.error(error.getMessage())
-              case Right(value) =>
-                discordWebhookService.getById(providerSettings.discordWebhookId) map {
-                  case None => ???
-                  case Some(v) =>
-                    actor ! value.toEvent(v)
-                }
-            }
-          case _ => ???
         }
 
         Ok("success")
