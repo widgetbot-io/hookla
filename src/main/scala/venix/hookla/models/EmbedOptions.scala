@@ -7,5 +7,9 @@ case class EmbedOptions(
     userId: UUID,
 
     // Customizable format.
-    descriptionFormat: String
+    descriptionFormat: Option[String],
+
+    // Private commit customization
+    privateMessage: Option[String],
+    privateCharacter: Option[String]
 )
