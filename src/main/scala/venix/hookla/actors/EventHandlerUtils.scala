@@ -3,21 +3,33 @@ package venix.hookla.actors
 import venix.hookla.models.EmbedOptions
 
 trait EventHandlerUtils {
-  protected def formatCommit(message: String, length: Int, embedOptions: Option[EmbedOptions]): String = {
+  protected def formatCommit(
+    message: String,
+    length: Int,
+    embedOptions: Option[EmbedOptions]
+  ): String = {
     val defaultChar = "!"
-    val defaultMsg = "This commit message has been marked as private."
+    val defaultPrivateMsg = "This commit message has been marked as private."
 
-    embedOptions.fold {
+    val msg = embedOptions.fold {
       val privateDenotations = defaultChar :: s"Revert $defaultChar" :: Nil
       val isPrivate = privateDenotations.exists(message.startsWith)
 
-      s"${if (length > 1) "- " else ""}${if (isPrivate) defaultMsg else message}"
+      if (isPrivate) defaultPrivateMsg else message
     } { embedOptions =>
       val privateChar = embedOptions.privateCharacter.getOrElse(defaultChar)
       val privateDenotations = privateChar :: s"Revert $privateChar" :: defaultChar :: s"Revert $defaultChar" :: Nil
       val isPrivate = privateDenotations.exists(message.startsWith)
 
-      s"${if (length > 1) "- " else ""}${if (isPrivate) embedOptions.privateMessage.getOrElse(defaultMsg) else message}"
+      if (isPrivate) embedOptions.privateMessage.getOrElse(defaultPrivateMsg) else message
     }
+
+    s"${if (length > 1) "- " else ""}$msg"
    }
+
+  private def formatDescription(
+    format: String,
+    data: Map[String, Any]
+  ): String =
+    data.foldLeft(format)((str, r) => str.replace(r._1, r._2.toString))
 }
