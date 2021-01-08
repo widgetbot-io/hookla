@@ -142,7 +142,8 @@ object GitlabPayloads {
     "Tag Push Hook" -> Decoder[GitlabTagPushPayload].widen,
     "Note Hook" -> Decoder[GitlabNotePayload].widen,
     "Issue Hook" -> Decoder[GitlabIssuePayload].widen,
-    "Job Hook" -> Decoder[GitlabJobPayload].widen
+    "Job Hook" -> Decoder[GitlabJobPayload].widen,
+    "Build Hook" -> Decoder[GitlabJobPayload].widen
   )
 
   implicit val encodeGitlabEvent: Encoder[GitlabPayload] = Encoder.instance {
