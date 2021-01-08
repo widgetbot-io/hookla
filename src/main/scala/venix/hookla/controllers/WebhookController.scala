@@ -4,7 +4,6 @@ import akka.actor.typed.ActorRef
 import cats.effect._
 import com.google.inject.Inject
 import io.circe.Decoder.Result
-import cats.syntax.functor._
 import io.circe.{Decoder, Json}
 import io.finch._
 import io.finch.circe._
@@ -50,21 +49,22 @@ class WebhookController @Inject()(
 
         headerName.fold(throw new Exception("event header name not found")) { headerName =>
           headers.get(headerName).fold(throw new Exception("event header not found")) { eventName =>
-            val decoded = providerSettings.slug match {
-              case "github" => githubEvents.get(eventName).map(meme => meme.as[GithubPayload])
-              case "gitlab" => gitlabEvents.get(eventName).map(meme => meme.as[GitlabPayload])
+            val decoder = providerSettings.slug match {
+              case "github" => githubEvents.get(eventName)
+              case "gitlab" => gitlabEvents.get(eventName)
             }
 
-            decoded match {
-              case None => logger.error("idk lol")
-              case Some(body) =>
-                discordWebhookService.getById(providerSettings.discordWebhookId) map {
+            decoder.fold(throw new Exception("event not handled")) { implicit decoder =>
+              decoder.decodeJson(body) match {
+                case Left(e) => logger.error(e.getMessage())
+                case Right(body) => discordWebhookService.getById(providerSettings.discordWebhookId) map {
                   case None => ???
                   case Some(hook) =>
                     providerSettingsService.getOptionsForProvider(providerSettings) map { options =>
-                      actor ! body.toEvent(hook, options)
+                      actor ! body.toEvent(hook, options) // This is just intelliJ being shite.
                     }
                 }
+              }
             }
           }
         }
