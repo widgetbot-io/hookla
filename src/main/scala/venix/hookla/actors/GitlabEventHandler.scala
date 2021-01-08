@@ -111,6 +111,8 @@ object GitlabEventHandler {
           this
 
         case JobEvent(payload, discordWebhook, embedOptions) =>
+          println(payload)
+
           payload.build_status match {
             case "failed" =>
               if (payload.build_allow_failure) return this

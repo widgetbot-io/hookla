@@ -49,6 +49,8 @@ class WebhookController @Inject()(
 
         headerName.fold(throw new Exception("event header name not found")) { headerName =>
           headers.get(headerName).fold(throw new Exception("event header not found")) { eventName =>
+            println(s"got header: $headerName -> $eventName")
+
             val decoder = providerSettings.slug match {
               case "github" => githubEvents.get(eventName)
               case "gitlab" => gitlabEvents.get(eventName)
