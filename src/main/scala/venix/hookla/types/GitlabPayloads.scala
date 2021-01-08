@@ -123,14 +123,13 @@ case class GitlabJobPayload(
     build_name: String,
     build_stage: String,
     build_status: String,
-    build_started_at: Int,
-    build_finished_at: Int,
+    build_started_at: String,
+    build_finished_at: Option[String],
     build_duration: Float,
     build_allow_failure: Boolean,
     project_id: Int,
     project_name: String,
     user: GitlabUser,
-    commit: GitlabCommit,
     repository: GitlabRepository
 ) extends GitlabPayload {
   override def toEvent(discordWebhook: DiscordWebhook, embedOptions: Option[EmbedOptions]) = Gitlab.JobEvent(this, discordWebhook, embedOptions)

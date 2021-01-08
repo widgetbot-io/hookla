@@ -184,7 +184,7 @@ object GitlabEventHandler {
       author = Some(OutgoingEmbedAuthor(payload.user.name, None, Some(payload.user.avatar_url))),
       url = Some(s"${payload.repository.homepage}/-/jobs/${payload.build_id}"),
       timestamp = Some(OffsetDateTime.now()),
-      footer = Some(OutgoingEmbedFooter(s"${payload.project_name}:${payload.ref}", Some(Gitlab.provider.logo))),
+      footer = Some(OutgoingEmbedFooter(s"${payload.repository.homepage.split("/").drop(3).mkString("/")}:${payload.ref}", Some(Gitlab.provider.logo))),
       color = Some(colour),
       description = Some(description)
     )

@@ -9,7 +9,7 @@ import io.finch._
 import io.finch.circe._
 import io.circe.syntax._
 import io.circe.generic.auto._
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 import venix.hookla.actors._
 import venix.hookla.services.{DiscordWebhookService, ProviderSettingsService}
 import venix.hookla.types.{BasePayload, GithubPayload, GithubPayloads, GitlabPayload}
@@ -17,9 +17,9 @@ import venix.hookla.types.GithubPayloads._
 import venix.hookla.types.GitlabPayloads._
 
 class WebhookController @Inject()(
-  actor: ActorRef[EventHandlerCommand],
-  providerSettingsService: ProviderSettingsService,
-  discordWebhookService: DiscordWebhookService
+    actor: ActorRef[EventHandlerCommand],
+    providerSettingsService: ProviderSettingsService,
+    discordWebhookService: DiscordWebhookService
 )(
     implicit executionContext: ExecutionContext
 ) extends BaseController {
@@ -31,7 +31,7 @@ class WebhookController @Inject()(
       case Some(providerSettings) =>
         logger.debug(s"fetched data for provider ${providerSettings.slug}")
 
-      Ok(providerSettings.asJson)
+        Ok(providerSettings.asJson)
     }
   }
 
@@ -47,31 +47,39 @@ class WebhookController @Inject()(
           case "gitlab" => Gitlab.provider.eventHeader
         }
 
-        headerName.fold(throw new Exception("event header name not found")) { headerName =>
-          headers.get(headerName).fold(throw new Exception("event header not found")) { eventName =>
-            println(s"got header: $headerName -> $eventName")
+        headerName match {
+          case None => BadRequest(new Exception("event header name not found"))
+          case Some(headerName) =>
+            headers.get(headerName).fold(throw new Exception("event header not found")) { eventName =>
+              println(s"got header: $headerName -> $eventName")
 
-            val decoder = providerSettings.slug match {
-              case "github" => githubEvents.get(eventName)
-              case "gitlab" => gitlabEvents.get(eventName)
-            }
+              val decoder = providerSettings.slug match {
+                case "github" => githubEvents.get(eventName)
+                case "gitlab" => gitlabEvents.get(eventName)
+              }
 
-            decoder.fold(throw new Exception("event not handled")) { implicit decoder =>
-              decoder.decodeJson(body) match {
-                case Left(e) => logger.error(e.getMessage())
-                case Right(body) => discordWebhookService.getById(providerSettings.discordWebhookId) map {
-                  case None => ???
-                  case Some(hook) =>
-                    providerSettingsService.getOptionsForProvider(providerSettings) map { options =>
-                      actor ! body.toEvent(hook, options) // This is just intelliJ being shite.
-                    }
-                }
+              decoder match {
+                case None => BadRequest(new Exception("Invalid event"))
+                case Some(decoder) =>
+                  decoder.decodeJson(body) match {
+                    case Left(e) =>
+                      println("--------------------------------ERROR OCCURRED WHILE PARSING BODY-------------------------------------------")
+                      println(body)
+                      println(e)
+                      InternalServerError(new Exception("An error occurred parsing your event!"))
+                    case Right(body) =>
+                      discordWebhookService.getById(providerSettings.discordWebhookId) flatMap {
+                        case None => ???
+                        case Some(hook) =>
+                          providerSettingsService.getOptionsForProvider(providerSettings) map { options =>
+                            actor ! body.toEvent(hook, options) // This is just intelliJ being shite.
+                          }
+                      }
+                  }
               }
             }
-          }
         }
-
-        Ok("success")
+      Ok("success")
     }
   }
 }
