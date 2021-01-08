@@ -75,6 +75,25 @@ case class GitlabPushPayload(
   override def toEvent(discordWebhook: DiscordWebhook, embedOptions: Option[EmbedOptions]) = Gitlab.PushEvent(this, discordWebhook, embedOptions)
 }
 
+case class GitlabTagPushPayload(
+  object_kind: String,
+  before: String,
+  after: String,
+  ref: String,
+  checkout_sha: String,
+  user_id: Int,
+  user_name: String,
+  user_email: String,
+  user_avatar: String,
+  project_id: Int,
+  project: GitlabProject,
+  repository: GitlabRepository,
+  commits: List[GitlabCommit],
+  total_commits_count: Int
+) extends GitlabPayload {
+  override def toEvent(discordWebhook: DiscordWebhook, embedOptions: Option[EmbedOptions]) = Gitlab.TagEvent(this, discordWebhook, embedOptions)
+}
+
 case class GitlabNotePayload(
     object_kind: String,
     user: GitlabUser,
@@ -95,16 +114,17 @@ case class GitlabIssuePayload(
 }
 
 object GitlabPayloads {
+  val gitlabEvents: Map[String, Decoder[GitlabPayload]] = Map(
+    "Push Hook" -> Decoder[GitlabPushPayload].widen,
+    "Tag Push Hook" -> Decoder[GitlabTagPushPayload].widen,
+    "Note Hook" -> Decoder[GitlabNotePayload].widen,
+    "Issue Hook" -> Decoder[GitlabIssuePayload].widen
+  )
+
   implicit val encodeGitlabEvent: Encoder[GitlabPayload] = Encoder.instance {
-    case notePayload: GitlabNotePayload   => notePayload.asJson
     case pushPayload: GitlabPushPayload   => pushPayload.asJson
+    case tagPushPayload: GitlabTagPushPayload => tagPushPayload.asJson
+    case notePayload: GitlabNotePayload   => notePayload.asJson
     case issuePayload: GitlabIssuePayload => issuePayload.asJson
   }
-
-  implicit val decodeGitlabEvent: Decoder[GitlabPayload] =
-    List[Decoder[GitlabPayload]](
-      Decoder[GitlabNotePayload].widen,
-      Decoder[GitlabPushPayload].widen,
-      Decoder[GitlabIssuePayload].widen,
-    ).reduceLeft(_ or _)
 }

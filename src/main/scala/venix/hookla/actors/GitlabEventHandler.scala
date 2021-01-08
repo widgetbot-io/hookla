@@ -7,7 +7,7 @@ import java.time.OffsetDateTime
 import venix.hookla.actors.Discord.SendEmbedToDiscord
 import venix.hookla.actors.Github.provider
 import venix.hookla.models.{DiscordWebhook, EmbedOptions}
-import venix.hookla.types.{GitlabCommit, GitlabIssuePayload, GitlabNotePayload, GitlabPushPayload, Provider}
+import venix.hookla.types.{GitlabCommit, GitlabIssuePayload, GitlabNotePayload, GitlabPushPayload, GitlabTagPushPayload, Provider}
 import venix.hookla.util.Colours
 
 object Gitlab {
@@ -22,6 +22,7 @@ object Gitlab {
 
   final case class NoteEvent(payload: GitlabNotePayload, discordWebhook: DiscordWebhook, embedOptions: Option[EmbedOptions])   extends Event
   final case class PushEvent(payload: GitlabPushPayload, discordWebhook: DiscordWebhook, embedOptions: Option[EmbedOptions])   extends Event
+  final case class TagEvent(payload: GitlabTagPushPayload, discordWebhook: DiscordWebhook, embedOptions: Option[EmbedOptions])    extends Event
   final case class IssueEvent(payload: GitlabIssuePayload, discordWebhook: DiscordWebhook, embedOptions: Option[EmbedOptions]) extends Event
 }
 
@@ -35,8 +36,7 @@ object GitlabEventHandler {
     override def onMessage(e: Event): Behavior[Event] =
       e match {
         case NoteEvent(payload, discordWebhook, embedOptions) =>
-          var title = "Test"
-          val description = payload.object_attributes.note
+          var title = "Unknown"
 
           payload.object_attributes.noteable_type match { // If it matches, we can .get
             case "Commit" =>
@@ -48,7 +48,7 @@ object GitlabEventHandler {
           }
           discord ! SendEmbedToDiscord(discordWebhook, OutgoingEmbed(
             title = Some(title),
-            description = Some(description),
+            description = Some(payload.object_attributes.note),
             author = Some(OutgoingEmbedAuthor(payload.user.name, None, Some(payload.user.avatar_url))),
             url = Some(payload.project.web_url),
             timestamp = Some(OffsetDateTime.now()),
@@ -102,30 +102,58 @@ object GitlabEventHandler {
               println("_")
               this
           }
+        case TagEvent(payload, discordWebhook, embedOptions) =>
+          handleTags(payload, discordWebhook)
+
+          this
         case IssueEvent(_, _, _) =>
           this
       }
 
     def handleBranches(payload: GitlabPushPayload, discordWebhook: DiscordWebhook) = {
-      val branchName = payload.ref.split('/').drop(2).mkString("/")
+      val refName = payload.ref.split('/').drop(2).mkString("/")
 
       if (payload.before == "0000000000000000000000000000000000000000") { // Created
         discord ! SendEmbedToDiscord(discordWebhook, OutgoingEmbed(
-          description = Some(s"New branch created: ${branchName}"),
+          description = Some(s"Branch created: $refName"),
           author = Some(OutgoingEmbedAuthor(payload.user_name, None, Some(payload.user_avatar))),
           url = Some(payload.project.web_url),
           timestamp = Some(OffsetDateTime.now()),
           color = Some(Colours.CREATED),
-          footer = Some(OutgoingEmbedFooter(s"${payload.project.path_with_namespace}:$branchName", Some(Gitlab.provider.logo)))
+          footer = Some(OutgoingEmbedFooter(s"${payload.project.path_with_namespace}:$refName", Some(Gitlab.provider.logo)))
         ))
       } else if (payload.after == "0000000000000000000000000000000000000000") {// Deleted
         discord ! SendEmbedToDiscord(discordWebhook, OutgoingEmbed(
-          description = Some(s"Branch deleted: ${branchName}"),
+          description = Some(s"Branch deleted: $refName"),
           author = Some(OutgoingEmbedAuthor(payload.user_name, None, Some(payload.user_avatar))),
           url = Some(payload.project.web_url),
           timestamp = Some(OffsetDateTime.now()),
           color = Some(Colours.DELETED),
-          footer = Some(OutgoingEmbedFooter(s"${payload.project.path_with_namespace}:$branchName", Some(Gitlab.provider.logo)))
+          footer = Some(OutgoingEmbedFooter(s"${payload.project.path_with_namespace}:$refName", Some(Gitlab.provider.logo)))
+        ))
+      }
+    }
+
+    def handleTags(payload: GitlabTagPushPayload, discordWebhook: DiscordWebhook) = {
+      val refName = payload.ref.split('/').drop(2).mkString("/")
+
+      if (payload.before == "0000000000000000000000000000000000000000") { // Created
+        discord ! SendEmbedToDiscord(discordWebhook, OutgoingEmbed(
+          description = Some(s"Tag created: $refName"),
+          author = Some(OutgoingEmbedAuthor(payload.user_name, None, Some(payload.user_avatar))),
+          url = Some(payload.project.web_url),
+          timestamp = Some(OffsetDateTime.now()),
+          color = Some(Colours.CREATED),
+          footer = Some(OutgoingEmbedFooter(s"${payload.project.path_with_namespace}:$refName", Some(Gitlab.provider.logo)))
+        ))
+      } else if (payload.after == "0000000000000000000000000000000000000000") {// Deleted
+        discord ! SendEmbedToDiscord(discordWebhook, OutgoingEmbed(
+          description = Some(s"Tag deleted: $refName"),
+          author = Some(OutgoingEmbedAuthor(payload.user_name, None, Some(payload.user_avatar))),
+          url = Some(payload.project.web_url),
+          timestamp = Some(OffsetDateTime.now()),
+          color = Some(Colours.DELETED),
+          footer = Some(OutgoingEmbedFooter(s"${payload.project.path_with_namespace}:$refName", Some(Gitlab.provider.logo)))
         ))
       }
     }

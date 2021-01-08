@@ -49,14 +49,13 @@ case class GithubIssuePayload(
 }
 
 object GithubPayloads {
+  val githubEvents: Map[String, Decoder[GithubPayload]] = Map(
+    "push" -> Decoder[GithubPushPayload].widen,
+    "issues" -> Decoder[GithubIssuePayload].widen,
+  );
+
   implicit val encodeGithubEvent: Encoder[GithubPayload] = Encoder.instance {
     case pushPayload: GithubPushPayload => pushPayload.asJson
     case issuePayload: GithubIssuePayload => issuePayload.asJson
   }
-
-  implicit val decodeGithubEvent: Decoder[GithubPayload] =
-    List[Decoder[GithubPayload]](
-      Decoder[GithubPushPayload].widen,
-      Decoder[GithubIssuePayload].widen,
-    ).reduceLeft(_ or _)
 }

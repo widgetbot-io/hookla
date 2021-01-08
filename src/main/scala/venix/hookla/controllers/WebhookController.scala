@@ -13,7 +13,7 @@ import io.circe.generic.auto._
 import scala.concurrent.ExecutionContext
 import venix.hookla.actors._
 import venix.hookla.services.{DiscordWebhookService, ProviderSettingsService}
-import venix.hookla.types.{BasePayload, GithubPayload, GitlabPayload}
+import venix.hookla.types.{BasePayload, GithubPayload, GithubPayloads, GitlabPayload}
 import venix.hookla.types.GithubPayloads._
 import venix.hookla.types.GitlabPayloads._
 
@@ -43,22 +43,30 @@ class WebhookController @Inject()(
       case Some(providerSettings) =>
         logger.debug(s"fetched data for provider ${providerSettings.slug}")
 
-
-        val decoded = providerSettings.slug match {
-          case "github" => body.as[GithubPayload]
-          case "gitlab" => body.as[GitlabPayload]
+        val headerName = providerSettings.slug match {
+          case "github" => Github.provider.eventHeader
+          case "gitlab" => Gitlab.provider.eventHeader
         }
 
-        decoded match {
-          case Left(err) => logger.error(err.getMessage())
-          case Right(body) =>
-            discordWebhookService.getById(providerSettings.discordWebhookId) map {
-              case None => ???
-              case Some(hook) =>
-                providerSettingsService.getOptionsForProvider(providerSettings) map { options =>
-                  actor ! body.toEvent(hook, options)
+        headerName.fold(throw new Exception("event header name not found")) { headerName =>
+          headers.get(headerName).fold(throw new Exception("event header not found")) { eventName =>
+            val decoded = providerSettings.slug match {
+              case "github" => githubEvents.get(eventName).map(meme => meme.as[GithubPayload])
+              case "gitlab" => gitlabEvents.get(eventName).map(meme => meme.as[GitlabPayload])
+            }
+
+            decoded match {
+              case None => logger.error("idk lol")
+              case Some(body) =>
+                discordWebhookService.getById(providerSettings.discordWebhookId) map {
+                  case None => ???
+                  case Some(hook) =>
+                    providerSettingsService.getOptionsForProvider(providerSettings) map { options =>
+                      actor ! body.toEvent(hook, options)
+                    }
                 }
             }
+          }
         }
 
         Ok("success")
