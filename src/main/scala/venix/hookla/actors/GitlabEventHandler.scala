@@ -7,7 +7,7 @@ import java.time.OffsetDateTime
 import venix.hookla.actors.Discord.SendEmbedToDiscord
 import venix.hookla.actors.Github.provider
 import venix.hookla.models.{DiscordWebhook, EmbedOptions}
-import venix.hookla.types.{GitlabCommit, GitlabIssuePayload, GitlabNotePayload, GitlabPushPayload, GitlabTagPushPayload, Provider}
+import venix.hookla.types.{GitlabCommit, GitlabIssuePayload, GitlabJobPayload, GitlabNotePayload, GitlabPushPayload, GitlabTagPushPayload, Provider}
 import venix.hookla.util.Colours
 
 object Gitlab {
@@ -22,8 +22,9 @@ object Gitlab {
 
   final case class NoteEvent(payload: GitlabNotePayload, discordWebhook: DiscordWebhook, embedOptions: Option[EmbedOptions])   extends Event
   final case class PushEvent(payload: GitlabPushPayload, discordWebhook: DiscordWebhook, embedOptions: Option[EmbedOptions])   extends Event
-  final case class TagEvent(payload: GitlabTagPushPayload, discordWebhook: DiscordWebhook, embedOptions: Option[EmbedOptions])    extends Event
+  final case class TagEvent(payload: GitlabTagPushPayload, discordWebhook: DiscordWebhook, embedOptions: Option[EmbedOptions]) extends Event
   final case class IssueEvent(payload: GitlabIssuePayload, discordWebhook: DiscordWebhook, embedOptions: Option[EmbedOptions]) extends Event
+  final case class JobEvent(payload: GitlabJobPayload, discordWebhook: DiscordWebhook, embedOptions: Option[EmbedOptions])     extends Event
 }
 
 object GitlabEventHandler {
@@ -108,7 +109,84 @@ object GitlabEventHandler {
           this
         case IssueEvent(_, _, _) =>
           this
+
+        case JobEvent(payload, discordWebhook, embedOptions) =>
+          payload.build_status match {
+            case "failed" =>
+              if (payload.build_allow_failure) return this
+
+              discord ! SendEmbedToDiscord(discordWebhook, makeJobEmbed(
+                payload = payload,
+                colour = Colours.FAILED,
+                description = "The job has failed."
+              ))
+
+            case "canceled" =>
+              discord ! SendEmbedToDiscord(discordWebhook, makeJobEmbed(
+                payload = payload,
+                colour = Colours.CANCELED,
+                description = "The job has has been canceled."
+              ))
+
+            case "running" =>
+              if (payload.build_name.startsWith("deploy-")) {
+                val environment = payload.build_name.substring(7)
+
+                if (environment.length > 0) {
+                  val embed = payload.tag match {
+                    case true => makeJobEmbed(
+                      payload = payload,
+                      colour = Colours.RUNNING,
+                      description = s"Version ${payload.ref} is deploying to ${environment}..."
+                    )
+
+                    case false => makeJobEmbed(
+                      payload = payload,
+                      colour = Colours.CANCELED,
+                      description = s"Deploying latest commit to ${environment}..."
+                    )
+                  }
+
+                  discord ! SendEmbedToDiscord(discordWebhook, embed)
+                }
+              }
+
+            case "success" =>
+              if (payload.build_name.startsWith("deploy-")) {
+                val environment = payload.build_name.substring(7)
+
+                if (environment.length > 0) {
+                  val embed = payload.tag match {
+                    case true => makeJobEmbed(
+                      payload = payload,
+                      colour = Colours.RUNNING,
+                      description = s"Version ${payload.ref} has been to ${environment}."
+                    )
+
+                    case false => makeJobEmbed(
+                      payload = payload,
+                      colour = Colours.CANCELED,
+                      description = s"Deployed latest commit to ${environment}."
+                    )
+                  }
+
+                  discord ! SendEmbedToDiscord(discordWebhook, embed)
+                }
+              }
+          }
+
+          this
       }
+
+    def makeJobEmbed(payload: GitlabJobPayload, colour: Int, description: String) = OutgoingEmbed(
+      author = Some(OutgoingEmbedAuthor(payload.user.name, None, Some(payload.user.avatar_url))),
+      url = Some(s"${payload.repository.homepage}/-/jobs/${payload.build_id}"),
+      timestamp = Some(OffsetDateTime.now()),
+      footer = Some(OutgoingEmbedFooter(s"${payload.project_name}:${payload.ref}", Some(Gitlab.provider.logo))),
+      color = Some(colour),
+      description = Some(description)
+    )
+
 
     def handleBranches(payload: GitlabPushPayload, discordWebhook: DiscordWebhook) = {
       val refName = payload.ref.split('/').drop(2).mkString("/")
