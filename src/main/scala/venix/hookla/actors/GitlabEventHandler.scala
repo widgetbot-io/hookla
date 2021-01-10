@@ -38,12 +38,14 @@ object GitlabEventHandler {
       e match {
         case NoteEvent(payload, discordWebhook, embedOptions) =>
           var title = "Unknown"
+          var url = payload.project.web_url
 
           payload.object_attributes.noteable_type match { // If it matches, we can .get
             case "Commit" =>
               title = s"Commit (${payload.commit.get.id.substring(7)})"
             case "MergeRequest" =>
               title = s"Merge Request #${payload.merge_request.get.iid}"
+              url = payload.object_attributes.url
             case "Issue" => ???
             case "Snippet" => ???
           }
@@ -51,7 +53,7 @@ object GitlabEventHandler {
             title = Some(title),
             description = Some(payload.object_attributes.note),
             author = Some(OutgoingEmbedAuthor(payload.user.name, None, Some(payload.user.avatar_url))),
-            url = Some(payload.project.web_url),
+            url = Some(url),
             timestamp = Some(OffsetDateTime.now()),
             color = Some(Colours.NOTE),
             footer = Some(OutgoingEmbedFooter(payload.project.path_with_namespace, Some(Gitlab.provider.logo)))

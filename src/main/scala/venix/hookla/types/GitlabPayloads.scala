@@ -47,7 +47,8 @@ case class GitlabMergeRequest(
 
 case class GitlabObjectAttributes(
     noteable_type: String,
-    note: String
+    note: String,
+    url: String
 )
 
 case class GitlabUser(
