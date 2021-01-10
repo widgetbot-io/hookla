@@ -162,7 +162,7 @@ object GitlabEventHandler {
                     case true => makeJobEmbed(
                       payload = payload,
                       colour = Colours.RUNNING,
-                      description = s"Version ${payload.ref} has been to ${environment}."
+                      description = s"Version ${payload.ref} has been deployed to ${environment}."
                     )
 
                     case false => makeJobEmbed(
