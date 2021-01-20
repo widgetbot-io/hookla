@@ -59,8 +59,9 @@ object GitlabEventHandler {
           this
 
         case PushEvent(payload, discordWebhook, embedOptions) =>
-          val branchName = payload.ref.split('/').drop(2).mkString("/")
-          val groupedCommits: Seq[Seq[GitlabCommit]] = payload.commits.groupBy(_.author.email).toSeq.map(_._2)
+          val branchName = getBranchFromRef(payload.ref)
+          if (isPrivateBranch(branchName)) return this
+          val groupedCommits = payload.commits.groupBy(_.author.email).toList.map(_._2)
 
           handleBranches(payload, discordWebhook)
 
@@ -134,15 +135,15 @@ object GitlabEventHandler {
               if (payload.build_name.startsWith("deploy-")) {
                 val environment = payload.build_name.substring(7)
 
-                if (environment.length > 0) {
-                  val embed = payload.tag match {
-                    case true => makeJobEmbed(
+                if (environment.nonEmpty) {
+                  val embed = if (payload.tag) {
+                    makeJobEmbed(
                       payload = payload,
                       colour = Colours.RUNNING,
                       description = s"Version ${payload.ref} is deploying to ${environment}..."
                     )
-
-                    case false => makeJobEmbed(
+                  } else {
+                    makeJobEmbed(
                       payload = payload,
                       colour = Colours.CANCELED,
                       description = s"Deploying latest commit to ${environment}..."
@@ -157,15 +158,15 @@ object GitlabEventHandler {
               if (payload.build_name.startsWith("deploy-")) {
                 val environment = payload.build_name.substring(7)
 
-                if (environment.length > 0) {
-                  val embed = payload.tag match {
-                    case true => makeJobEmbed(
+                if (environment.nonEmpty) {
+                  val embed = if (payload.tag) {
+                    makeJobEmbed(
                       payload = payload,
                       colour = Colours.RUNNING,
                       description = s"Version ${payload.ref} has been to ${environment}."
                     )
-
-                    case false => makeJobEmbed(
+                  } else {
+                    makeJobEmbed(
                       payload = payload,
                       colour = Colours.CANCELED,
                       description = s"Deployed latest commit to ${environment}."
@@ -191,7 +192,7 @@ object GitlabEventHandler {
 
 
     def handleBranches(payload: GitlabPushPayload, discordWebhook: DiscordWebhook) = {
-      val refName = payload.ref.split('/').drop(2).mkString("/")
+      val refName = getBranchFromRef(payload.ref)
 
       if (payload.before == "0000000000000000000000000000000000000000") { // Created
         discord ! SendEmbedToDiscord(discordWebhook, OutgoingEmbed(
@@ -215,7 +216,7 @@ object GitlabEventHandler {
     }
 
     def handleTags(payload: GitlabTagPushPayload, discordWebhook: DiscordWebhook) = {
-      val refName = payload.ref.split('/').drop(2).mkString("/")
+      val refName = getBranchFromRef(payload.ref)
 
       if (payload.before == "0000000000000000000000000000000000000000") { // Created
         discord ! SendEmbedToDiscord(discordWebhook, OutgoingEmbed(
