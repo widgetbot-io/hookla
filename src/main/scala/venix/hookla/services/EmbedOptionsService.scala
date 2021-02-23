@@ -2,11 +2,10 @@ package venix.hookla.services
 
 import io.getquill.{CamelCase, PostgresAsyncContext}
 import java.util.UUID
-import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import venix.hookla.models.EmbedOptions
 
-class EmbedOptionsService @Inject()(
+class EmbedOptionsService(
     dbContext: PostgresAsyncContext[CamelCase]
 )(
     implicit executionContext: ExecutionContext

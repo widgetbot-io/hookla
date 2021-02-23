@@ -6,10 +6,9 @@ import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
 import java.time.OffsetDateTime
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
-import venix.hookla.actors.Discord.SendEmbedToDiscord
 import venix.hookla.models.{DiscordWebhook, EmbedOptions}
 import venix.hookla.types.{GithubCommit, GithubIssuePayload, GithubPushPayload, Provider}
-import venix.hookla.util.Colours
+import venix.hookla.util.{Colours, EventHandlerUtils}
 
 object Github {
   sealed trait Event extends EventHandlerCommand

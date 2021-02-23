@@ -1,12 +1,11 @@
 package venix.hookla.services
 
-import com.google.inject.Inject
 import io.getquill.{CamelCase, PostgresAsyncContext}
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 import venix.hookla.models.{DiscordWebhook, EmbedOptions, ProviderSettings}
 
-class ProviderSettingsService @Inject()(
+class ProviderSettingsService(
   dbContext: PostgresAsyncContext[CamelCase],
   embedOptionsService: EmbedOptionsService
 )(

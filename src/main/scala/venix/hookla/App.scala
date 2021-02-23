@@ -1,6 +1,5 @@
 package venix.hookla
 
-import com.google.inject.Guice
 import com.twitter.finagle.{Http, Service, http}
 import com.twitter.server.TwitterServer
 import com.twitter.util.Await
@@ -9,23 +8,13 @@ import org.flywaydb.core.Flyway
 import venix.hookla.controllers.WebhookController
 import io.circe.generic.auto._
 import io.finch.circe._
-import venix.hookla.modules.{ActorModule, AkkaModule, ChildActorsModule, MainModule}
 
-object App extends TwitterServer {
-  import net.codingwell.scalaguice.InjectorExtensions._
+object App extends TwitterServer with HooklaModules {
   import venix.hookla.util.ExceptionEncoder._
-
-  protected val injector = Guice.createInjector(new MainModule, new AkkaModule)
-  protected val actorInjector = injector.createChildInjector(new ChildActorsModule(injector))
-  protected val finalInjector = injector.createChildInjector(new ActorModule(actorInjector))
-  private val config = injector.instance[HooklaConfig]
-
-  private val webhookController = finalInjector.instance[WebhookController]
 
   val service: Service[http.Request, http.Response] = Bootstrap
     .serve[Application.Json](webhookController.endpoints)
     .toService
-
 
   private def migrateDb(): Unit = {
     val flyway = new Flyway()

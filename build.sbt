@@ -1,5 +1,5 @@
 import sbt._
-import Keys._
+import Keys.{libraryDependencies, _}
 import com.typesafe.sbt.packager.docker.DockerPermissionStrategy
 
 name := "hookla"
@@ -38,27 +38,29 @@ val guiceVersion = "4.2.3"
 val flywayVersion = "5.1.0"
 
 libraryDependencies ++= Seq(
-  "com.google.inject.extensions" % "guice-assistedinject" % guiceVersion,
   "com.github.finagle" %% "finchx-core" % finchVersion,
   "com.github.finagle" %% "finchx-circe" % finchVersion,
   "com.twitter" %% "twitter-server" % twitterVersion,
-  "net.codingwell" %% "scala-guice" % guiceScalaVersion,
   "org.log4s" %% "log4s" % log4sVersion,
   "ch.qos.logback" % "logback-classic" % "1.2.3",
+  "net.katsstuff" %% "ackcord-core" % "0.17.1",
 
-  // flyway migration shit
+  // Database
   "org.flywaydb" % "flyway-core" % flywayVersion,
   "org.postgresql" % "postgresql" % "9.3-1102-jdbc41",
+  "io.getquill" %% "quill-async-postgres" % "3.5.2",
 
-  // circe shit
+  // Circe
   "io.circe" %% "circe-core" % circeVersion,
   "io.circe" %% "circe-generic" % circeVersion,
   "io.circe" %% "circe-parser" % circeVersion,
   "io.circe" %% "circe-config" % circeConfVersion,
 
-  "io.getquill" %% "quill-async-postgres" % "3.5.2",
-  "com.typesafe.akka" %% "akka-actor-typed" % akkaVersion,
-  "net.katsstuff" %% "ackcord-core" % "0.17.1"
+  // MacWire stuff
+  "com.softwaremill.macwire" %% "macros" % "2.3.7" % "provided",
+  "com.softwaremill.macwire" %% "macrosakka" % "2.3.7" % "provided",
+  "com.softwaremill.macwire" %% "util" % "2.3.7",
+  "com.softwaremill.macwire" %% "proxy" % "2.3.7",
 )
 
 scalacOptions ++= Seq(
