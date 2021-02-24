@@ -28,7 +28,8 @@ case class GithubRepository(
 )
 
 case class GithubCheckRun(
-
+    status: String, // queues, in_progress, completed
+    conclusion: Option[String], // success, failure, neutral, cancelled, timed_out, action_required, stale
 )
 
 case class GithubPushPayload(
@@ -51,12 +52,14 @@ case class GithubIssuePayload(
 
 object GithubPayloads {
   val githubEvents: Map[String, Decoder[GithubPayload]] = Map(
-    "push"   -> Decoder[GithubPushPayload].widen,
-    "issues" -> Decoder[GithubIssuePayload].widen
+    "push"      -> Decoder[GithubPushPayload].widen,
+    "issues"    -> Decoder[GithubIssuePayload].widen,
+    "check_run" -> Decoder[GithubCheckRunPayload].widen
   )
 
   implicit val encodeGithubEvent: Encoder[GithubPayload] = Encoder.instance {
-    case pushPayload: GithubPushPayload   => pushPayload.asJson
-    case issuePayload: GithubIssuePayload => issuePayload.asJson
+    case payload: GithubPushPayload     => payload.asJson
+    case payload: GithubIssuePayload    => payload.asJson
+    case payload: GithubCheckRunPayload => payload.asJson
   }
 }
