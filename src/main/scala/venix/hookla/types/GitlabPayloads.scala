@@ -72,28 +72,24 @@ case class GitlabPushPayload(
     repository: GitlabRepository,
     commits: List[GitlabCommit],
     total_commits_count: Int
-) extends GitlabPayload {
-  override def toEvent(discordWebhook: DiscordWebhook, embedOptions: Option[EmbedOptions]) = Gitlab.PushEvent(this, discordWebhook, embedOptions)
-}
+) extends GitlabPayload
 
 case class GitlabTagPushPayload(
-  object_kind: String,
-  before: String,
-  after: String,
-  ref: String,
-  checkout_sha: String,
-  user_id: Int,
-  user_name: String,
-  user_email: String,
-  user_avatar: String,
-  project_id: Int,
-  project: GitlabProject,
-  repository: GitlabRepository,
-  commits: List[GitlabCommit],
-  total_commits_count: Int
-) extends GitlabPayload {
-  override def toEvent(discordWebhook: DiscordWebhook, embedOptions: Option[EmbedOptions]) = Gitlab.TagEvent(this, discordWebhook, embedOptions)
-}
+    object_kind: String,
+    before: String,
+    after: String,
+    ref: String,
+    checkout_sha: String,
+    user_id: Int,
+    user_name: String,
+    user_email: String,
+    user_avatar: String,
+    project_id: Int,
+    project: GitlabProject,
+    repository: GitlabRepository,
+    commits: List[GitlabCommit],
+    total_commits_count: Int
+) extends GitlabPayload
 
 case class GitlabNotePayload(
     object_kind: String,
@@ -104,15 +100,11 @@ case class GitlabNotePayload(
     object_attributes: GitlabObjectAttributes,
     commit: Option[GitlabCommit],
     merge_request: Option[GitlabMergeRequest]
-) extends GitlabPayload {
-  override def toEvent(discordWebhook: DiscordWebhook, embedOptions: Option[EmbedOptions])= Gitlab.NoteEvent(this, discordWebhook, embedOptions)
-}
+) extends GitlabPayload
 
 case class GitlabIssuePayload(
     action: String
-) extends GitlabPayload {
-  override def toEvent(discordWebhook: DiscordWebhook, embedOptions: Option[EmbedOptions]) = Gitlab.IssueEvent(this, discordWebhook, embedOptions)
-}
+) extends GitlabPayload
 
 case class GitlabJobPayload(
     object_kind: String,
@@ -132,18 +124,16 @@ case class GitlabJobPayload(
     project_name: String,
     user: GitlabUser,
     repository: GitlabRepository
-) extends GitlabPayload {
-  override def toEvent(discordWebhook: DiscordWebhook, embedOptions: Option[EmbedOptions]) = Gitlab.JobEvent(this, discordWebhook, embedOptions)
-}
+) extends GitlabPayload
 
 object GitlabPayloads {
   val gitlabEvents: Map[String, Decoder[GitlabPayload]] = Map(
-    "Push Hook" -> Decoder[GitlabPushPayload].widen,
+    "Push Hook"     -> Decoder[GitlabPushPayload].widen,
     "Tag Push Hook" -> Decoder[GitlabTagPushPayload].widen,
-    "Note Hook" -> Decoder[GitlabNotePayload].widen,
-    "Issue Hook" -> Decoder[GitlabIssuePayload].widen,
-    "Job Hook" -> Decoder[GitlabJobPayload].widen,
-    "Build Hook" -> Decoder[GitlabJobPayload].widen
+    "Note Hook"     -> Decoder[GitlabNotePayload].widen,
+    "Issue Hook"    -> Decoder[GitlabIssuePayload].widen,
+    "Job Hook"      -> Decoder[GitlabJobPayload].widen,
+    "Build Hook"    -> Decoder[GitlabJobPayload].widen
   )
 
   implicit val encodeGitlabEvent: Encoder[GitlabPayload] = Encoder.instance {

@@ -8,7 +8,7 @@ import venix.hookla.actors.Discord.SendEmbedToDiscord
 import venix.hookla.actors.Github.provider
 import venix.hookla.models.{DiscordWebhook, EmbedOptions}
 import venix.hookla.types.{GitlabCommit, GitlabIssuePayload, GitlabJobPayload, GitlabNotePayload, GitlabPushPayload, GitlabTagPushPayload, Provider}
-import venix.hookla.util.Colours
+import venix.hookla.util.{Colours, EventHandlerUtils}
 
 object Gitlab {
   sealed trait Event extends EventHandlerCommand

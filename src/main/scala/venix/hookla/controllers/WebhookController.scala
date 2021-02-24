@@ -2,7 +2,6 @@ package venix.hookla.controllers
 
 import akka.actor.typed.ActorRef
 import cats.effect._
-import com.google.inject.Inject
 import io.circe.Decoder.Result
 import io.circe.{Decoder, Json}
 import io.finch._
@@ -16,8 +15,7 @@ import venix.hookla.types.{BasePayload, GithubPayload, GithubPayloads, GitlabPay
 import venix.hookla.types.GithubPayloads._
 import venix.hookla.types.GitlabPayloads._
 
-class WebhookController @Inject()(
-    actor: ActorRef[EventHandlerCommand],
+class WebhookController(
     providerSettingsService: ProviderSettingsService,
     discordWebhookService: DiscordWebhookService
 )(
@@ -72,7 +70,7 @@ class WebhookController @Inject()(
                         case None => ???
                         case Some(hook) =>
                           providerSettingsService.getOptionsForProvider(providerSettings) map { options =>
-                            actor ! body.toEvent(hook, options) // This is just intelliJ being shite.
+                            // TODO: Handle the event here.
                           }
                       }
                   }
