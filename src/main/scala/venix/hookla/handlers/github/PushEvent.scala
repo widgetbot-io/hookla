@@ -3,14 +3,14 @@ package venix.hookla.handlers.github
 import ackcord.data.{EmbedField, OutgoingEmbed, OutgoingEmbedAuthor, OutgoingEmbedFooter}
 import java.time.OffsetDateTime
 import scala.concurrent.Future
-import venix.hookla.handlers.BaseHandler
+import venix.hookla.handlers.BaseEvent
 import venix.hookla.services.DiscordMessageService
 import venix.hookla.types.{GithubCommit, GithubPushPayload, HandlerData}
 import venix.hookla.util.Colours
 
 class PushEvent(
     discordMessageService: DiscordMessageService
-) extends BaseHandler[GithubPushPayload] {
+) extends BaseEvent[GithubPushPayload] {
   def handleEvent(payload: GithubPushPayload, data: HandlerData) = {
     val branchName = payload.ref.split('/').drop(2).mkString("/")
     val groupedCommits: Seq[Seq[GithubCommit]] = payload.commits.groupBy(_.author.email).toSeq.map(_._2)
@@ -29,7 +29,7 @@ class PushEvent(
           url = Some(payload.repository.html_url),
           timestamp = Some(OffsetDateTime.now()),
           color = Some(Colours.PUSH),
-          footer = Some(OutgoingEmbedFooter(s"${payload.repository.full_name}:$branchName", Some(provider.logo)))
+          footer = Some(OutgoingEmbedFooter(s"${payload.repository.full_name}:$branchName", Some(GithubHandler.provider.logo)))
         ))
       case x if(x > 1) =>
         val fields =
@@ -47,7 +47,7 @@ class PushEvent(
           timestamp = Some(OffsetDateTime.now()),
           fields = fields,
           color = Some(Colours.PUSH),
-          footer = Some(OutgoingEmbedFooter(s"${payload.repository.full_name}:$branchName", Some(provider.logo)))
+          footer = Some(OutgoingEmbedFooter(s"${payload.repository.full_name}:$branchName", Some(GithubHandler.provider.logo)))
         ))
       case _ =>
         println("_")

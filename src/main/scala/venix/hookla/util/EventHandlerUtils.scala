@@ -3,7 +3,7 @@ package venix.hookla.util
 import venix.hookla.models.EmbedOptions
 
 trait EventHandlerUtils {
-  val defaultChars = "!" :: "$" :: Nil
+  val defaultChars: List[String] = "!" :: "$" :: Nil
 
   protected def isPrivateBranch(branchName: String): Boolean =
     defaultChars.exists(branchName.startsWith)

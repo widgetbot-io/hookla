@@ -27,6 +27,10 @@ case class GithubRepository(
     full_name: String
 )
 
+case class GithubCheckRun(
+
+)
+
 case class GithubPushPayload(
     ref: String,
     before: String,
@@ -35,6 +39,10 @@ case class GithubPushPayload(
     pusher: GithubPusher,
     sender: GithubSender,
     repository: GithubRepository
+) extends GithubPayload
+
+case class GithubCheckRunPayload(
+    action: String
 ) extends GithubPayload
 
 case class GithubIssuePayload(
