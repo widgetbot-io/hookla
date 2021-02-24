@@ -4,10 +4,8 @@ import cats.syntax.functor._
 import io.circe.{Decoder, Encoder}
 import io.circe.generic.auto._
 import io.circe.syntax._
-import venix.hookla.actors.Gitlab
-import venix.hookla.models.{DiscordWebhook, EmbedOptions}
 
-sealed trait GitlabPayload extends BasePayload[Gitlab.Event]
+sealed trait GitlabPayload extends BasePayload
 
 case class GitlabAuthor(
     name: String,

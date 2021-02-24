@@ -1,8 +1,7 @@
 package venix.hookla.handlers
 
-import venix.hookla.types.{BasePayload, HandlerData}
-import venix.hookla.util.EventHandlerUtils
+import venix.hookla.types.{BasePayload, HandlerData, Provider}
 
-trait BaseHandler[T <: BasePayload] extends EventHandlerUtils {
-  def handleEvent(payload: T, data: HandlerData)
+trait BaseHandler[T <: BasePayload] {
+  def handle(payload: T, data: HandlerData): Unit
 }
