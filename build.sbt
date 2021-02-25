@@ -56,6 +56,10 @@ libraryDependencies ++= Seq(
   "io.circe" %% "circe-parser" % circeVersion,
   "io.circe" %% "circe-config" % circeConfVersion,
 
+  // Enumeratum
+  "com.beachape" %% "enumeratum"       % "1.5.15",
+  "com.beachape" %% "enumeratum-circe" % "1.5.23",
+
   // MacWire stuff
   "com.softwaremill.macwire" %% "macros" % "2.3.7" % "provided",
   "com.softwaremill.macwire" %% "macrosakka" % "2.3.7" % "provided",

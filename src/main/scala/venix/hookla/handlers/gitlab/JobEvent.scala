@@ -92,7 +92,7 @@ class JobEvent(
     footer = Some(
       OutgoingEmbedFooter(
         s"${payload.repository.homepage.split("/").drop(3).mkString("/")}:${payload.ref}",
-        Some(GithubHandler.provider.logo)
+        Some(GitlabHandler.provider.logo)
       )
     ),
     color = Some(colour),

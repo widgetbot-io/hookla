@@ -10,8 +10,9 @@ class GithubHandler(
   import com.softwaremill.macwire._
 
   def handle(payload: GithubPayload, data: HandlerData) = payload match {
-    case payload: GithubPushPayload  => wire[PushEvent].handleEvent(payload, data)
-    case payload: GithubIssuePayload => wire[IssueEvent].handleEvent(payload, data)
+    case payload: GithubPushPayload     => wire[PushEvent].handleEvent(payload, data)
+    case payload: GithubIssuePayload    => wire[IssueEvent].handleEvent(payload, data)
+    case payload: GithubCheckRunPayload => wire[CheckRunEvent].handleEvent(payload, data)
     case _ =>
       println("You have an unhandled GitHub payload, you need to add an try to GithubHandler.")
       ???

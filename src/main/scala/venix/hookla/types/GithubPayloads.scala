@@ -18,18 +18,30 @@ case class GithubCommit(
 )
 
 case class GithubSender(
-    avatar_url: String
+    login: String,
+    avatar_url: String,
+    html_url: String
+)
+
+case class GithubOwner(
+    login: String
 )
 
 case class GithubRepository(
     name: String,
     html_url: String,
-    full_name: String
+    full_name: String,
+    owner: GithubOwner
 )
 
 case class GithubCheckRun(
-    status: String, // queues, in_progress, completed
-    conclusion: Option[String], // success, failure, neutral, cancelled, timed_out, action_required, stale
+    id: Int,
+    head_branch: String,
+    html_url: String,
+    head_sha: String,
+    status: GithubCheckRunStatus,
+    conclusion: Option[GithubCheckRunConclusion],
+    name: String
 )
 
 case class GithubPushPayload(
@@ -43,7 +55,10 @@ case class GithubPushPayload(
 ) extends GithubPayload
 
 case class GithubCheckRunPayload(
-    action: String
+    action: GithubCheckRunAction,
+    check_run: GithubCheckRun,
+    repository: GithubRepository,
+    sender: GithubSender
 ) extends GithubPayload
 
 case class GithubIssuePayload(
