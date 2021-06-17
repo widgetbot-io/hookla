@@ -25,7 +25,7 @@ object GitlabHandler {
   val provider = Provider(
     "gitlab",
     "Gitlab",
-    "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/GitLab_Logo.svg/1108px-GitLab_Logo.svg.png",
+    "https://about.gitlab.com/images/press/logo/png/gitlab-icon-rgb.png",
     eventHeader = Some("X-Gitlab-Event")
   )
 }
