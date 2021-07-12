@@ -4,6 +4,7 @@ import cats.syntax.functor._
 import io.circe.generic.auto._
 import io.circe.syntax._
 import io.circe.{Decoder, Encoder}
+import org.joda.time.DateTime
 import venix.hookla.types.BasePayload
 
 sealed trait SonarrPayload extends BasePayload
@@ -28,9 +29,8 @@ case class Episode(
     id: Int,
     episodeNumber: Int,
     seasonNumber: Int,
-    title: String
-//  airDate: Option[LocalDateTime],
-//  airDateUtc: Option[LocalDateTime]
+    title: String,
+    airDateUtc: Option[String]
 )
 
 case class EpisodeFile(
