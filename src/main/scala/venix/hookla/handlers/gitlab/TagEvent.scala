@@ -4,7 +4,8 @@ import ackcord.data.{OutgoingEmbed, OutgoingEmbedAuthor, OutgoingEmbedFooter}
 import java.time.OffsetDateTime
 import venix.hookla.handlers.BaseEvent
 import venix.hookla.services.DiscordMessageService
-import venix.hookla.types.{GitlabPushPayload, GitlabTagPushPayload, HandlerData}
+import venix.hookla.types.HandlerData
+import venix.hookla.types.providers.GitlabTagPushPayload
 import venix.hookla.util.Colours
 
 class TagEvent(

@@ -5,7 +5,8 @@ import java.time.OffsetDateTime
 import venix.hookla.handlers.BaseEvent
 import venix.hookla.handlers.github.GithubHandler
 import venix.hookla.services.DiscordMessageService
-import venix.hookla.types.{GitlabJobPayload, GitlabPushPayload, HandlerData}
+import venix.hookla.types.HandlerData
+import venix.hookla.types.providers.GitlabJobPayload
 import venix.hookla.util.Colours
 
 class JobEvent(

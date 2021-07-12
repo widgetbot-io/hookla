@@ -5,7 +5,8 @@ import java.time.OffsetDateTime
 import scala.concurrent.Future
 import venix.hookla.handlers.BaseEvent
 import venix.hookla.services.DiscordMessageService
-import venix.hookla.types.{GithubCommit, GithubPushPayload, HandlerData}
+import venix.hookla.types.HandlerData
+import venix.hookla.types.providers.{GithubCommit, GithubPushPayload}
 import venix.hookla.util.Colours
 
 class PushEvent(

@@ -5,7 +5,8 @@ import java.time.OffsetDateTime
 import venix.hookla.handlers.BaseEvent
 import venix.hookla.models.DiscordWebhook
 import venix.hookla.services.DiscordMessageService
-import venix.hookla.types.{GitlabNotePayload, GitlabPushPayload, HandlerData}
+import venix.hookla.types.HandlerData
+import venix.hookla.types.providers.GitlabPushPayload
 import venix.hookla.util.Colours
 
 class PushEvent(

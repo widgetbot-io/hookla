@@ -1,4 +1,4 @@
-package venix.hookla.types
+package venix.hookla.types.providers
 
 import enumeratum.values._
 

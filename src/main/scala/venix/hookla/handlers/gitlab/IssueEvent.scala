@@ -2,7 +2,8 @@ package venix.hookla.handlers.gitlab
 
 import venix.hookla.handlers.BaseEvent
 import venix.hookla.services.DiscordMessageService
-import venix.hookla.types.{GitlabIssuePayload, GitlabTagPushPayload, HandlerData}
+import venix.hookla.types.HandlerData
+import venix.hookla.types.providers.GitlabIssuePayload
 
 class IssueEvent(
   discordMessageService: DiscordMessageService

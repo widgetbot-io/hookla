@@ -13,9 +13,9 @@ import venix.hookla.handlers.MainHandler
 import venix.hookla.handlers.github.GithubHandler
 import venix.hookla.handlers.gitlab.GitlabHandler
 import venix.hookla.services.{DiscordWebhookService, ProviderSettingsService}
-import venix.hookla.types.{BasePayload, GithubPayload, GithubPayloads, GitlabPayload, HandlerData}
-import venix.hookla.types.GithubPayloads._
-import venix.hookla.types.GitlabPayloads._
+import venix.hookla.types.{BasePayload, HandlerData}
+import venix.hookla.types.providers.GithubPayloads._
+import venix.hookla.types.providers.GitlabPayloads._
 
 class WebhookController(
     providerSettingsService: ProviderSettingsService,

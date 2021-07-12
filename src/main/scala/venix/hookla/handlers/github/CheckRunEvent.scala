@@ -5,6 +5,7 @@ import java.time.OffsetDateTime
 import venix.hookla.handlers.BaseEvent
 import venix.hookla.services.DiscordMessageService
 import venix.hookla.types._
+import venix.hookla.types.providers.{GithubCheckRunAction, GithubCheckRunPayload}
 import venix.hookla.util.Colours
 
 class CheckRunEvent(
