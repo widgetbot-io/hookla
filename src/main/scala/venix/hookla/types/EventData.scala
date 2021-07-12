@@ -2,7 +2,7 @@ package venix.hookla.types
 
 import venix.hookla.models.{DiscordWebhook, EmbedOptions}
 
-case class HandlerData( // TODO: Could do with a better name
+case class EventData(
     hook: DiscordWebhook,
     options: Option[EmbedOptions] = None
 )

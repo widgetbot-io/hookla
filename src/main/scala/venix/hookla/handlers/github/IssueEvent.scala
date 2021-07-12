@@ -11,7 +11,7 @@ import venix.hookla.util.Colours
 class IssueEvent(
     discordMessageService: DiscordMessageService
 ) extends BaseEvent[GithubIssuePayload] {
-  def handleEvent(payload: GithubIssuePayload, data: HandlerData) = {
+  def handleEvent(payload: GithubIssuePayload, data: EventData) = {
     println(s"issue $payload")
   }
 }

@@ -4,14 +4,14 @@ import venix.hookla.handlers.github.GithubHandler
 import venix.hookla.handlers.gitlab.GitlabHandler
 import venix.hookla.services.DiscordMessageService
 import venix.hookla.types.providers.{GithubPayload, GitlabPayload}
-import venix.hookla.types.{BasePayload, HandlerData, Provider}
+import venix.hookla.types.{BasePayload, EventData, Provider}
 
 class MainHandler(
     discordMessageService: DiscordMessageService
 ) extends BaseHandler[BasePayload] {
   import com.softwaremill.macwire._
 
-  override def handle(payload: BasePayload, data: HandlerData): Unit = {
+  override def handle(payload: BasePayload, data: EventData): Unit = {
     lazy val githubHandler = wire[GithubHandler]
     lazy val gitlabHandler = wire[GitlabHandler]
 

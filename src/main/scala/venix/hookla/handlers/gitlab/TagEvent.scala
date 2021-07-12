@@ -4,14 +4,14 @@ import ackcord.data.{OutgoingEmbed, OutgoingEmbedAuthor, OutgoingEmbedFooter}
 import java.time.OffsetDateTime
 import venix.hookla.handlers.BaseEvent
 import venix.hookla.services.DiscordMessageService
-import venix.hookla.types.HandlerData
+import venix.hookla.types.EventData
 import venix.hookla.types.providers.GitlabTagPushPayload
 import venix.hookla.util.Colours
 
 class TagEvent(
     discordMessageService: DiscordMessageService
 ) extends BaseEvent[GitlabTagPushPayload] {
-  def handleEvent(payload: GitlabTagPushPayload, data: HandlerData) = {
+  def handleEvent(payload: GitlabTagPushPayload, data: EventData) = {
     val refName = getBranchFromRef(payload.ref)
 
     if (payload.before == "0000000000000000000000000000000000000000") { // Created

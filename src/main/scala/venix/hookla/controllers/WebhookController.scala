@@ -13,7 +13,7 @@ import venix.hookla.handlers.MainHandler
 import venix.hookla.handlers.github.GithubHandler
 import venix.hookla.handlers.gitlab.GitlabHandler
 import venix.hookla.services.{DiscordWebhookService, ProviderSettingsService}
-import venix.hookla.types.{BasePayload, HandlerData}
+import venix.hookla.types.{BasePayload, EventData}
 import venix.hookla.types.providers.GithubPayloads._
 import venix.hookla.types.providers.GitlabPayloads._
 
@@ -76,7 +76,7 @@ class WebhookController(
                           case None => ???
                           case Some(hook) =>
                             providerSettingsService.getOptionsForProvider(providerSettings) map { options =>
-                              mainHandler.handle(body, HandlerData(hook, options))
+                              mainHandler.handle(body, EventData(hook, options))
                             }
                         }
                     }

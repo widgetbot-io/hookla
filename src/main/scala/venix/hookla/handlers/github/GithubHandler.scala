@@ -10,7 +10,7 @@ class GithubHandler(
 ) extends BaseHandler[GithubPayload] {
   import com.softwaremill.macwire._
 
-  def handle(payload: GithubPayload, data: HandlerData) = payload match {
+  def handle(payload: GithubPayload, data: EventData) = payload match {
     case payload: GithubPushPayload     => wire[PushEvent].handleEvent(payload, data)
     case payload: GithubIssuePayload    => wire[IssueEvent].handleEvent(payload, data)
     case payload: GithubCheckRunPayload => wire[CheckRunEvent].handleEvent(payload, data)

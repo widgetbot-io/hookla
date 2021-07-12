@@ -5,14 +5,14 @@ import java.time.OffsetDateTime
 import scala.concurrent.Future
 import venix.hookla.handlers.BaseEvent
 import venix.hookla.services.DiscordMessageService
-import venix.hookla.types.HandlerData
+import venix.hookla.types.EventData
 import venix.hookla.types.providers.{GithubCommit, GithubPushPayload}
 import venix.hookla.util.Colours
 
 class PushEvent(
     discordMessageService: DiscordMessageService
 ) extends BaseEvent[GithubPushPayload] {
-  def handleEvent(payload: GithubPushPayload, data: HandlerData) = {
+  def handleEvent(payload: GithubPushPayload, data: EventData) = {
     val branchName = payload.ref.split('/').drop(2).mkString("/")
     val groupedCommits: Seq[Seq[GithubCommit]] = payload.commits.groupBy(_.author.email).toSeq.map(_._2)
 

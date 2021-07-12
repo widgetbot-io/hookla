@@ -11,7 +11,7 @@ import venix.hookla.util.Colours
 class CheckRunEvent(
     discordMessageService: DiscordMessageService
 ) extends BaseEvent[GithubCheckRunPayload] {
-  def handleEvent(payload: GithubCheckRunPayload, data: HandlerData) = {
+  def handleEvent(payload: GithubCheckRunPayload, data: EventData) = {
     println(payload)
 
     payload.action match {

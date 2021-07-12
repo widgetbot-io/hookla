@@ -4,14 +4,14 @@ import ackcord.data.{OutgoingEmbed, OutgoingEmbedAuthor, OutgoingEmbedFooter}
 import java.time.OffsetDateTime
 import venix.hookla.handlers.BaseEvent
 import venix.hookla.services.DiscordMessageService
-import venix.hookla.types.HandlerData
+import venix.hookla.types.EventData
 import venix.hookla.types.providers.GitlabNotePayload
 import venix.hookla.util.Colours
 
 class NoteEvent(
   discordMessageService: DiscordMessageService
 ) extends BaseEvent[GitlabNotePayload] {
-  def handleEvent(payload: GitlabNotePayload, data: HandlerData) = {
+  def handleEvent(payload: GitlabNotePayload, data: EventData) = {
     var title = "Unknown"
     var url = payload.project.web_url
 

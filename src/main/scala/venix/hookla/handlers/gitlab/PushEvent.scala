@@ -5,14 +5,14 @@ import java.time.OffsetDateTime
 import venix.hookla.handlers.BaseEvent
 import venix.hookla.models.DiscordWebhook
 import venix.hookla.services.DiscordMessageService
-import venix.hookla.types.HandlerData
+import venix.hookla.types.EventData
 import venix.hookla.types.providers.GitlabPushPayload
 import venix.hookla.util.Colours
 
 class PushEvent(
     discordMessageService: DiscordMessageService
 ) extends BaseEvent[GitlabPushPayload] {
-  def handleEvent(payload: GitlabPushPayload, data: HandlerData) = {
+  def handleEvent(payload: GitlabPushPayload, data: EventData) = {
     val branchName = getBranchFromRef(payload.ref)
     if (!isPrivateBranch(branchName)) {
       val groupedCommits = payload.commits.groupBy(_.author.email).toList.map(_._2)
