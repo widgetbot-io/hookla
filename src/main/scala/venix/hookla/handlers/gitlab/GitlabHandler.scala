@@ -27,6 +27,6 @@ object GitlabHandler {
     "gitlab",
     "Gitlab",
     "https://about.gitlab.com/images/press/logo/png/gitlab-icon-rgb.png",
-    eventHeader = Some("X-Gitlab-Event")
+    "X-Gitlab-Event"
   )
 }

@@ -25,6 +25,6 @@ object GithubHandler {
     "github",
     "GitHub",
     "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
-    Some("X-GitHub-Event")
+    "X-GitHub-Event"
   )
 }
