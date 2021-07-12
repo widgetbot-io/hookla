@@ -10,7 +10,6 @@
       </option>
       <option name="PLACE_SELF_TYPE_ON_NEW_LINE" value="false" />
       <option name="NOT_CONTINUATION_INDENT_FOR_PARAMS" value="true" />
-      <option name="FORMATTER" value="1" />
       <option name="SPACE_BEFORE_INFIX_OPERATOR_LIKE_METHOD_CALL_PARENTHESES" value="false" />
       <option name="MULTILINE_STRING_CLOSING_QUOTES_ON_NEW_LINE" value="true" />
     </ScalaCodeStyleSettings>
