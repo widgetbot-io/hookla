@@ -40,6 +40,7 @@ class WebhookController(
     "process" :: path[String] :: jsonBody[Json] :: headersAll
   ) { (token: String, body: Json, headers: Map[String, String]) =>
     println(body)
+    println(headers)
     providerSettingsService.getByToken(token) map {
       case None => Unauthorized(new Exception("invalid token"))
       case Some(providerSettings) =>
@@ -55,16 +56,16 @@ class WebhookController(
         provider match {
           case None => BadRequest(new Exception("event header name not found"))
           case Some(provider) =>
-            val eventName: String = if (provider.isBody)
-              body.hcursor.get[String](provider.eventKey) match {
-                case Left(err) =>
-                  println(s"Provider ${provider.name} has eventKey ${provider.eventKey} and isBody but eventKey can't be found in the JSON passed.")
-                  println(err)
-                  throw new Exception("internal server error")
-                case Right(v) => v
-              }
-            else headers.get(provider.eventKey).fold(throw new Exception("event header not found"))(identity)
-
+            val eventName: String =
+              if (provider.isBody)
+                body.hcursor.get[String](provider.eventKey) match {
+                  case Left(err) =>
+                    println(s"Provider ${provider.name} has eventKey ${provider.eventKey} and isBody but eventKey can't be found in the JSON passed.")
+                    println(err)
+                    throw new Exception("internal server error")
+                  case Right(v) => v
+                }
+              else headers.get(provider.eventKey).fold(throw new Exception("event header not found"))(identity)
 
             val decoder = providerSettings.slug match {
               case "github" => githubEvents.get(eventName)
