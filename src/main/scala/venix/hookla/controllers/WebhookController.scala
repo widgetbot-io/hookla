@@ -1,28 +1,28 @@
 package venix.hookla.controllers
 
-import akka.actor.typed.ActorRef
 import cats.effect._
-import io.circe.Decoder.Result
-import io.circe.{Decoder, Json}
+import io.circe.Json
+import io.circe.generic.auto._
+import io.circe.syntax._
 import io.finch._
 import io.finch.circe._
-import io.circe.syntax._
-import io.circe.generic.auto._
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 import venix.hookla.handlers.MainHandler
 import venix.hookla.handlers.github.GithubHandler
 import venix.hookla.handlers.gitlab.GitlabHandler
+import venix.hookla.handlers.sonarr.SonarrHandler
 import venix.hookla.services.{DiscordWebhookService, ProviderSettingsService}
-import venix.hookla.types.{BasePayload, EventData}
+import venix.hookla.types.EventData
 import venix.hookla.types.providers.GithubPayloads._
 import venix.hookla.types.providers.GitlabPayloads._
+import venix.hookla.types.providers.SonarrPayloads._
 
 class WebhookController(
     providerSettingsService: ProviderSettingsService,
     discordWebhookService: DiscordWebhookService,
     mainHandler: MainHandler
 )(
-  implicit executionContext: ExecutionContext
+    implicit executionContext: ExecutionContext
 ) extends BaseController {
   def endpoints = process :+: getHookInfo
 
@@ -40,45 +40,53 @@ class WebhookController(
     "process" :: path[String] :: jsonBody[Json] :: headersAll
   ) { (token: String, body: Json, headers: Map[String, String]) =>
     println(body)
+    println(headers)
     providerSettingsService.getByToken(token) map {
       case None => Unauthorized(new Exception("invalid token"))
       case Some(providerSettings) =>
         logger.debug(s"fetched data for provider ${providerSettings.slug}")
 
-        val headerName = providerSettings.slug match {
-          case "github" => GithubHandler.provider.eventHeader
-          case "gitlab" => GitlabHandler.provider.eventHeader
+        val provider = providerSettings.slug match {
+          case "github" => Some(GithubHandler.provider)
+          case "gitlab" => Some(GitlabHandler.provider)
+          case "sonarr" => Some(SonarrHandler.provider)
+          case _        => None
         }
 
-        headerName match {
+        provider match {
           case None => BadRequest(new Exception("event header name not found"))
-          case Some(headerName) =>
-            headers.get(headerName).fold(throw new Exception("event header not found")) {
-              eventName =>
-                println(s"got header: $headerName -> $eventName")
-
-                val decoder = providerSettings.slug match {
-                  case "github" => githubEvents.get(eventName)
-                  case "gitlab" => gitlabEvents.get(eventName)
+          case Some(provider) =>
+            val eventName: String =
+              if (provider.isBody)
+                body.hcursor.get[String](provider.eventKey) match {
+                  case Left(err) =>
+                    println(s"Provider ${provider.name} has eventKey ${provider.eventKey} and isBody but eventKey can't be found in the JSON passed.")
+                    println(err)
+                    throw new Exception("internal server error")
+                  case Right(v) => v
                 }
+              else headers.get(provider.eventKey).fold(throw new Exception("event header not found"))(identity)
 
-                decoder match {
-                  case None => BadRequest(new Exception("Invalid event"))
-                  case Some(decoder) =>
-                    decoder.decodeJson(body) match {
-                      case Left(e) =>
-                        println("----ERROR OCCURRED WHILE PARSING BODY----")
-                        println(body)
-                        println(e)
-                        InternalServerError(new Exception("An error occurred parsing your event!"))
-                      case Right(body) =>
-                        discordWebhookService.getById(providerSettings.discordWebhookId) flatMap {
-                          case None => ???
-                          case Some(hook) =>
-                            providerSettingsService.getOptionsForProvider(providerSettings) map { options =>
-                              mainHandler.handle(body, EventData(hook, options))
-                            }
-                        }
+            val decoder = providerSettings.slug match {
+              case "github" => githubEvents.get(eventName)
+              case "gitlab" => gitlabEvents.get(eventName)
+              case "sonarr" => sonarrEvents.get(eventName)
+            }
+
+            decoder match {
+              case None => BadRequest(new Exception("invalid event"))
+              case Some(decoder) =>
+                decoder.decodeJson(body) match {
+                  case Left(e) =>
+                    println("----ERROR OCCURRED WHILE PARSING BODY----")
+                    println(body)
+                    println(e)
+                    InternalServerError(new Exception("An error occurred parsing your event!"))
+                  case Right(body) =>
+                    discordWebhookService.getById(providerSettings.discordWebhookId) flatMap {
+                      case None => ???
+                      case Some(hook) =>
+                        providerSettingsService.getOptionsForProvider(providerSettings) map { options => mainHandler.handle(body, EventData(hook, options)) }
                     }
                 }
             }
@@ -86,4 +94,5 @@ class WebhookController(
         Ok("success")
     }
   }
+
 }
