@@ -65,7 +65,7 @@ class WebhookController(
                     throw new Exception("internal server error")
                   case Right(v) => v
                 }
-              else headers.get(provider.eventKey).fold(throw new Exception("event header not found"))(identity)
+              else headers.get(provider.eventKey.toLowerCase).fold(throw new Exception("event header not found"))(identity)
 
             val decoder = providerSettings.slug match {
               case "github" => githubEvents.get(eventName)
