@@ -66,16 +66,28 @@ case class GithubIssuePayload(
     action: String
 ) extends GithubPayload
 
+case class GithubCreatePayload(
+    ref: String,
+    ref_type: GithubRefType,
+    pusher_type: String,
+    repository: GithubRepository,
+    sender: GithubSender
+) extends GithubPayload
+
+case class GithubDeletePayload(
+    ref: String,
+    ref_type: GithubRefType,
+    pusher_type: String,
+    repository: GithubRepository,
+    sender: GithubSender
+) extends GithubPayload
+
 object GithubPayloads {
   val githubEvents: Map[String, Decoder[GithubPayload]] = Map(
     "push"      -> Decoder[GithubPushPayload].widen,
     "issues"    -> Decoder[GithubIssuePayload].widen,
-    "check_run" -> Decoder[GithubCheckRunPayload].widen
+    "check_run" -> Decoder[GithubCheckRunPayload].widen,
+    "create"    -> Decoder[GithubCreatePayload].widen,
+    "delete"    -> Decoder[GithubDeletePayload].widen
   )
-
-  implicit val encodeGithubEvent: Encoder[GithubPayload] = Encoder.instance {
-    case payload: GithubPushPayload     => payload.asJson
-    case payload: GithubIssuePayload    => payload.asJson
-    case payload: GithubCheckRunPayload => payload.asJson
-  }
 }

@@ -2,6 +2,15 @@ package venix.hookla.types.providers
 
 import enumeratum.values._
 
+// Specifically for create|delete events.
+sealed abstract class GithubRefType(val value: String) extends StringEnumEntry
+case object GithubRefType extends StringEnum[GithubRefType] with StringCirceEnum[GithubRefType] {
+  def values = findValues
+
+  case object Branch extends GithubRefType("branch")
+  case object Tag    extends GithubRefType("tag")
+}
+
 sealed abstract class GithubCheckRunAction(val value: String) extends StringEnumEntry
 case object GithubCheckRunAction extends StringEnum[GithubCheckRunAction] with StringCirceEnum[GithubCheckRunAction] {
   def values = findValues
