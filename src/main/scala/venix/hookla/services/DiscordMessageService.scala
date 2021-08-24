@@ -12,8 +12,8 @@ import venix.hookla.types.OutgoingWebhookPayload
 class DiscordMessageService {
   private val discordClient: Service[http.Request, http.Response] =
     Http.client.withSessionQualifier.noFailFast.withSessionQualifier.noFailureAccrual
-      .withTls("discordapp.com")
-      .newService("discordapp.com:443")
+      .withTls("discord.com")
+      .newService("discord.com:443")
 
   def sendMessageToDiscord(discordWebhook: DiscordWebhook, embed: OutgoingEmbed): Future[Response] = {
     val payload = OutgoingWebhookPayload(List(embed))
@@ -33,9 +33,7 @@ class DiscordMessageService {
       }
 
       println("success", res)
-    } onFailure { ex: Throwable =>
-      println(ex)
-    }
+    } onFailure { ex: Throwable => println(ex) }
   }
 
 }
