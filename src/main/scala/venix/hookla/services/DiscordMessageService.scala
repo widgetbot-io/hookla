@@ -17,8 +17,7 @@ class DiscordMessageService {
 
   def sendMessageToDiscord(discordWebhook: DiscordWebhook, embed: OutgoingEmbed): Future[Response] = {
     val payload = OutgoingWebhookPayload(List(embed))
-    val request =
-      http.Request(http.Method.Post, s"/api/webhooks/${discordWebhook.discordWebhookId}/${discordWebhook.discordWebhookToken}")
+    val request = http.Request(http.Method.Post, s"/api/webhooks/${discordWebhook.discordWebhookId}/${discordWebhook.discordWebhookToken}")
 
     println("Sending following JSON to Discord...")
     println(payload.asJson)
