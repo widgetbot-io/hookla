@@ -14,7 +14,7 @@ class CreateEvent(
   def handleEvent(payload: GithubCreatePayload, data: EventData) = {
     payload.ref_type match {
       case GithubRefType.Branch =>
-        val ref = getBranchFromRef(payload.ref)
+        val ref = payload.ref
 
         discordMessageService.sendMessageToDiscord(
           data.hook,
