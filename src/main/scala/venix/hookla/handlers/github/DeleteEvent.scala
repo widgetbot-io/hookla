@@ -14,7 +14,7 @@ class DeleteEvent(
   def handleEvent(payload: GithubDeletePayload, data: EventData) = {
     payload.ref_type match {
       case GithubRefType.Branch =>
-        val ref = getBranchFromRef(payload.ref)
+        val ref = payload.ref
 
         discordMessageService.sendMessageToDiscord(
           data.hook,
