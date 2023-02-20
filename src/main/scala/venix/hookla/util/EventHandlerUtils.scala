@@ -22,7 +22,7 @@ trait EventHandlerUtils {
       val privateReverts            = privateChar.map(c => s"Revert $c")
       val privateDenotations        = privateChar ::: privateReverts ::: defaultChars ::: defaultReverts ::: Nil
       val isPrivate                 = privateDenotations.exists(message.startsWith)
-      val clickableMsg              = if (embedOptions.areCommitsClickable) s"[$url]($message)" else message
+      val clickableMsg              = if (embedOptions.areCommitsClickable) s"[$message]($url)" else message
 
       s"${if (length > 1) "- " else ""}${if (isPrivate) embedOptions.privateMessage.getOrElse(defaultMsg) else clickableMsg}"
     }

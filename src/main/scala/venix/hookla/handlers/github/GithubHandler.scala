@@ -28,6 +28,6 @@ object GithubHandler {
     "github",
     "GitHub",
     "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
-    "X-GitHub-Event"
+    "X-Github-Event"
   )
 }

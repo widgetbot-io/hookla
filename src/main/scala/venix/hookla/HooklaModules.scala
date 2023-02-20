@@ -2,7 +2,8 @@ package venix.hookla
 
 import io.circe.config._
 import io.circe.generic.auto._
-import io.getquill.{CamelCase, PostgresAsyncContext}
+import io.getquill.{PostgresAsyncContext, SnakeCase}
+
 import scala.concurrent.ExecutionContext
 import venix.hookla.controllers._
 import venix.hookla.handlers.MainHandler
@@ -11,27 +12,20 @@ import venix.hookla.services._
 trait HooklaModules {
   import com.softwaremill.macwire._
 
-  lazy val config: HooklaConfig =
-    parser
-      .decode[HooklaConfig]()
-      .fold(
-        errors => throw errors.fillInStackTrace(),
-        identity
-      )
+  val config: HooklaConfig = parser.decode[HooklaConfig]().fold(errors => throw errors.fillInStackTrace(), identity)
 
-  implicit lazy val executionContext: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
-  lazy val postgresAsyncContext: PostgresAsyncContext[CamelCase] =
-    new PostgresAsyncContext(CamelCase, "postgres")
+  implicit val executionContext: ExecutionContext           = scala.concurrent.ExecutionContext.Implicits.global
+  val postgresAsyncContext: PostgresAsyncContext[SnakeCase] = new PostgresAsyncContext(SnakeCase, "postgres")
 
   // Services
-  lazy val discordMessageService   = wire[DiscordMessageService]
-  lazy val discordWebhookService   = wire[DiscordWebhookService]
-  lazy val embedOptionsService     = wire[EmbedOptionsService]
-  lazy val providerSettingsService = wire[ProviderSettingsService]
+  lazy val discordMessageService: DiscordMessageService     = wire[DiscordMessageService]
+  lazy val discordWebhookService: DiscordWebhookService     = wire[DiscordWebhookService]
+  lazy val embedOptionsService: EmbedOptionsService         = wire[EmbedOptionsService]
+  lazy val providerSettingsService: ProviderSettingsService = wire[ProviderSettingsService]
 
   // Handlers
-  lazy val mainHandler = wire[MainHandler]
+  lazy val mainHandler: MainHandler = wire[MainHandler]
 
   // Controllers
-  lazy val webhookController = wire[WebhookController]
+  lazy val webhookController: WebhookController = wire[WebhookController]
 }

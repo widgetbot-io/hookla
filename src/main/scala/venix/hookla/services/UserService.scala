@@ -1,12 +1,12 @@
 package venix.hookla.services
 
-import io.getquill.{CamelCase, PostgresAsyncContext}
+import io.getquill.{SnakeCase, PostgresAsyncContext}
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 import venix.hookla.models.User
 
 class UserService(
-    dbContext: PostgresAsyncContext[CamelCase]
+    dbContext: PostgresAsyncContext[SnakeCase]
 )(
   implicit executionContext: ExecutionContext
 ) {

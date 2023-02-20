@@ -12,7 +12,6 @@ class CheckRunEvent(
     discordMessageService: DiscordMessageService
 ) extends BaseEvent[GithubCheckRunPayload] {
   def handleEvent(payload: GithubCheckRunPayload, data: EventData) = {
-    println(payload)
 
     payload.action match {
       case GithubCheckRunAction.Created =>

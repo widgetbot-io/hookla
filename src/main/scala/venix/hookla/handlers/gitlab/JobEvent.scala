@@ -13,7 +13,6 @@ class JobEvent(
     discordMessageService: DiscordMessageService
 ) extends BaseEvent[GitlabJobPayload] {
   def handleEvent(payload: GitlabJobPayload, data: EventData) = {
-    println(payload)
 
     payload.build_status match {
       case "failed" =>

@@ -1,12 +1,12 @@
 package venix.hookla.services
 
-import io.getquill.{CamelCase, PostgresAsyncContext}
+import io.getquill.{SnakeCase, PostgresAsyncContext}
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 import venix.hookla.models.{DiscordWebhook, EmbedOptions}
 
 class DiscordWebhookService(
-  dbContext: PostgresAsyncContext[CamelCase],
+  dbContext: PostgresAsyncContext[SnakeCase],
   embedOptionsService: EmbedOptionsService
 )(
   implicit executionContext: ExecutionContext

@@ -38,7 +38,9 @@ class WebhookController(
 
   def process: Endpoint[IO, String] = post(
     "process" :: path[String] :: jsonBody[Json] :: headersAll
-  ) { (token: String, body: Json, headers: Map[String, String]) =>
+  ) { (token: String, body: Json, rawHeaders: Map[String, String]) =>
+    val headers = rawHeaders.map { case (k, v) => (k.toLowerCase, v) }
+
     println(body)
     println(headers)
     providerSettingsService.getByToken(token) map {
