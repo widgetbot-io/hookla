@@ -29,10 +29,10 @@ object App extends TwitterServer with HooklaModules {
   def main(): Unit = {
     migrateDb()
 
-    val server = Http.server
-      .serve(s":${config.app.port}", service)
+    val server = Http.server.serve(s":${config.app.port}", service)
+    logger.info(s"Server started on port ${config.app.port}")
 
-    onExit { server.close() }
+    onExit(server.close())
     Await.ready(adminHttpServer)
   }
 }

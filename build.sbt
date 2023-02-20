@@ -15,7 +15,7 @@ lazy val hookla = (project in file("."))
   .settings(dockerUsername := Some("widgetbot-io"))
   .settings(packageName in Docker := "hookla")
   .settings(dockerUpdateLatest := true)
-  .settings(dockerBaseImage := "gcr.io/distroless/java:11")
+  .settings(dockerBaseImage := "gcr.io/distroless/java:17")
   .settings(daemonUserUid in Docker := None)
   .settings(daemonUser in Docker := "root")
   .settings(dockerPermissionStrategy := DockerPermissionStrategy.None)
@@ -35,17 +35,15 @@ lazy val hookla = (project in file("."))
 //////////////////////////////////////////////////////////////////
 ////////////////////////   DEPENDENCIES   ////////////////////////
 //////////////////////////////////////////////////////////////////
-val scalalikejdbcVersion = "3.5.0"
-val h2DatabaseVersion    = "1.4.200"
-val circeConfVersion     = "0.8.0"
-val twitterVersion       = "20.3.0"
-val circeVersion         = "0.13.0"
-val akkaVersion          = "2.6.6"
-val log4sVersion         = "1.8.2"
-val finchVersion         = "0.32.1"
-val guiceScalaVersion    = "4.2.10"
-val guiceVersion         = "4.2.3"
-val flywayVersion        = "5.1.0"
+val circeConfVersion  = "0.8.0"
+val twitterVersion    = "20.3.0"
+val circeVersion      = "0.13.0"
+val akkaVersion       = "2.6.6"
+val log4sVersion      = "1.8.2"
+val finchVersion      = "0.32.1"
+val guiceScalaVersion = "4.2.10"
+val guiceVersion      = "4.2.3"
+val flywayVersion     = "5.1.0"
 
 libraryDependencies ++= Seq(
   "com.github.finagle" %% "finchx-core"     % finchVersion,

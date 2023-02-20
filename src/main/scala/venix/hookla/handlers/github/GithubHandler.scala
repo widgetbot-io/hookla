@@ -18,7 +18,7 @@ class GithubHandler(
       case payload: GithubCreatePayload   => wire[CreateEvent].handleEvent(payload, data)
       case payload: GithubDeletePayload   => wire[DeleteEvent].handleEvent(payload, data)
       case _ =>
-        println("You have an unhandled GitHub payload, you need to add an try to GithubHandler.")
+        logger.warn("You have an unhandled GitHub payload, you need to add an try to GithubHandler.")
         ???
     }
 }
