@@ -15,6 +15,7 @@ case class GithubPusher(
 
 case class GithubCommit(
     message: String,
+    url: String,
     author: GithubPusher
 )
 

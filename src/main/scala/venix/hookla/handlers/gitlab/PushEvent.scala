@@ -22,7 +22,7 @@ class PushEvent(
         case 1 =>
           val description =
             groupedCommits.head
-              .map(c => formatCommit(c.message, groupedCommits.head.length, data.options))
+              .map(c => formatCommit(c.message, groupedCommits.head.length, c.url, data.options))
               .mkString("\n")
 
           discordMessageService.sendMessageToDiscord(
@@ -42,12 +42,12 @@ class PushEvent(
             )
           )
 
-        case x if (x > 1) =>
+        case x if x > 1 =>
           val fields =
             groupedCommits.map { d =>
               EmbedField(
                 s"Commits from ${d.head.author.name}",
-                d.map(c => formatCommit(c.message, d.length, data.options)).mkString("\n"),
+                d.map(c => formatCommit(c.message, d.length, c.url, data.options)).mkString("\n"),
                 Some(false)
               )
             }

@@ -1,20 +1,20 @@
 <component name="ProjectCodeStyleConfiguration">
   <code_scheme name="Project" version="173">
+    <JetCodeStyleSettings>
+      <option name="ALLOW_TRAILING_COMMA" value="true" />
+      <option name="CODE_STYLE_DEFAULTS" value="KOTLIN_OFFICIAL" />
+    </JetCodeStyleSettings>
     <ScalaCodeStyleSettings>
-      <option name="classCountToUseImportOnDemand" value="3" />
-      <option name="importLayout">
-        <array />
+      <option name="alwaysUsedImports">
+        <array>
+          <option value="BackendModelCodecs.userCodec" />
+        </array>
       </option>
-      <option name="importsWithPrefix">
-        <array />
-      </option>
-      <option name="PLACE_SELF_TYPE_ON_NEW_LINE" value="false" />
-      <option name="NOT_CONTINUATION_INDENT_FOR_PARAMS" value="true" />
-      <option name="SPACE_BEFORE_INFIX_OPERATOR_LIKE_METHOD_CALL_PARENTHESES" value="false" />
-      <option name="MULTILINE_STRING_CLOSING_QUOTES_ON_NEW_LINE" value="true" />
+      <option name="SCALAFMT_REFORMAT_ON_FILES_SAVE" value="true" />
+      <option name="FORMATTER" value="1" />
     </ScalaCodeStyleSettings>
-    <codeStyleSettings language="Scala">
-      <option name="ALIGN_MULTILINE_PARAMETERS" value="false" />
+    <codeStyleSettings language="kotlin">
+      <option name="CODE_STYLE_DEFAULTS" value="KOTLIN_OFFICIAL" />
     </codeStyleSettings>
   </code_scheme>
 </component>
