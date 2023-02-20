@@ -6,6 +6,7 @@ case class EmbedOptions(
     id: UUID,
     userId: UUID,
     areCommitsClickable: Boolean,
+    showPrivateCommits: Boolean,
     // Customizable format.
     descriptionFormat: Option[String],
     // Private commit customization

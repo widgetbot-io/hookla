@@ -23,8 +23,11 @@ trait EventHandlerUtils {
       val privateDenotations        = privateChar ::: privateReverts ::: defaultChars ::: defaultReverts ::: Nil
       val isPrivate                 = privateDenotations.exists(message.startsWith)
       val clickableMsg              = if (embedOptions.areCommitsClickable) s"[$message]($url)" else message
+      val finalMsg =
+        if (!embedOptions.showPrivateCommits) if (isPrivate) embedOptions.privateMessage.getOrElse(defaultMsg) else clickableMsg
+        else clickableMsg
 
-      s"${if (length > 1) "- " else ""}${if (isPrivate) embedOptions.privateMessage.getOrElse(defaultMsg) else clickableMsg}"
+      s"${if (length > 1) "- " else ""}$finalMsg"
     }
   }
 }

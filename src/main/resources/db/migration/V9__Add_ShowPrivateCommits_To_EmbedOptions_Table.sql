@@ -1,0 +1,1 @@
+ALTER TABLE embed_options ADD COLUMN show_private_commits BOOLEAN NOT NULL DEFAULT FALSE;
