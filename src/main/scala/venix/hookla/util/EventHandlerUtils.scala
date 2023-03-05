@@ -26,7 +26,7 @@ trait EventHandlerUtils {
       val clickableMsg              = if (embedOptions.areCommitsClickable) s"[$message]($url)" else message
       val finalMsg =
         if (!embedOptions.showPrivateCommits) if (isPrivate) embedOptions.privateMessage.getOrElse(defaultMsg) else privateCommitPrefix + clickableMsg
-        else privateCommitPrefix + clickableMsg
+        else clickableMsg
 
       s"${if (length > 1) "- " else ""}$finalMsg"
     }
