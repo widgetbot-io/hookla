@@ -45,8 +45,8 @@ class WebhookController(
   ) { (token: String, body: Json, rawHeaders: Map[String, String]) =>
     val headers = rawHeaders.map { case (k, v) => (k.toLowerCase, v) }
 
-    println(body)
-    println(headers)
+//    println(body)
+//    println(headers)
     providerSettingsService.getByToken(token) map {
       case None => Unauthorized(new Exception("invalid token"))
       case Some(providerSettings) =>
