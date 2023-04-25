@@ -37,7 +37,7 @@ case class GithubRepository(
 )
 
 case class GithubCheckRun(
-    id: Int,
+//    id: Int,
     head_branch: String,
     html_url: String,
     head_sha: String,

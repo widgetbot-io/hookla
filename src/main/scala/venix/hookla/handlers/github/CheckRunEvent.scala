@@ -12,7 +12,6 @@ class CheckRunEvent(
     discordMessageService: DiscordMessageService
 ) extends BaseEvent[GithubCheckRunPayload] {
   def handleEvent(payload: GithubCheckRunPayload, data: EventData) = {
-
     payload.action match {
       case GithubCheckRunAction.Created =>
         if (List("deploy-", "deploy ").exists(payload.check_run.name.toLowerCase.startsWith)) {
@@ -22,19 +21,19 @@ class CheckRunEvent(
             val embed = makeJobEmbed(
               payload = payload,
               colour = Colours.RUNNING,
-              description = s"Version ${payload.check_run.head_branch} is deploying to ${environment}..."
+              description = s"Version ${payload.check_run.head_branch} is deploying to $environment..."
             )
 
             discordMessageService.sendMessageToDiscord(data.hook, embed)
           }
         }
-      case GithubCheckRunAction.Completed =>
-      case GithubCheckRunAction.ReRequested =>
+      case GithubCheckRunAction.Completed       =>
+      case GithubCheckRunAction.ReRequested     =>
       case GithubCheckRunAction.RequestedAction =>
     }
   }
 
-  def makeJobEmbed(payload: GithubCheckRunPayload, colour: Int, description: String) = OutgoingEmbed(
+  private def makeJobEmbed(payload: GithubCheckRunPayload, colour: Int, description: String): OutgoingEmbed = OutgoingEmbed(
     author = Some(OutgoingEmbedAuthor(payload.sender.login, None, Some(payload.sender.avatar_url))),
     url = Some(payload.check_run.html_url),
     timestamp = Some(OffsetDateTime.now()),
