@@ -6,7 +6,7 @@ import io.circe.generic.auto._
 import io.circe.syntax._
 import io.finch._
 import io.finch.circe._
-import scala.concurrent.ExecutionContext
+import org.log4s._
 import venix.hookla.handlers.MainHandler
 import venix.hookla.handlers.github.GithubHandler
 import venix.hookla.handlers.gitlab.GitlabHandler
@@ -17,6 +17,8 @@ import venix.hookla.types.providers.GithubPayloads._
 import venix.hookla.types.providers.GitlabPayloads._
 import venix.hookla.types.providers.SonarrPayloads._
 
+import scala.concurrent.ExecutionContext
+
 class WebhookController(
     providerSettingsService: ProviderSettingsService,
     discordWebhookService: DiscordWebhookService,
@@ -24,9 +26,11 @@ class WebhookController(
 )(
     implicit executionContext: ExecutionContext
 ) extends BaseController {
+  private val logger = getLogger
+
   def endpoints = process :+: getHookInfo
 
-  def getHookInfo: Endpoint[IO, Json] = get("process" :: path[String]) { token: String =>
+  private def getHookInfo: Endpoint[IO, Json] = get("process" :: path[String]) { token: String =>
     providerSettingsService.getByToken(token) map {
       case None => Unauthorized(new Exception("invalid token"))
       case Some(providerSettings) =>
@@ -36,7 +40,7 @@ class WebhookController(
     }
   }
 
-  def process: Endpoint[IO, String] = post(
+  private def process: Endpoint[IO, String] = post(
     "process" :: path[String] :: jsonBody[Json] :: headersAll
   ) { (token: String, body: Json, rawHeaders: Map[String, String]) =>
     val headers = rawHeaders.map { case (k, v) => (k.toLowerCase, v) }
@@ -62,8 +66,7 @@ class WebhookController(
               if (provider.isBody)
                 body.hcursor.get[String](provider.eventKey) match {
                   case Left(err) =>
-                    println(s"Provider ${provider.name} has eventKey ${provider.eventKey} and isBody but eventKey can't be found in the JSON passed.")
-                    println(err)
+                    logger.error(err)(s"Provider ${provider.name} has eventKey ${provider.eventKey} and isBody but eventKey can't be found in the JSON passed.")
                     throw new Exception("internal server error")
                   case Right(v) => v
                 }
@@ -80,9 +83,8 @@ class WebhookController(
               case Some(decoder) =>
                 decoder.decodeJson(body) match {
                   case Left(e) =>
-                    println("----ERROR OCCURRED WHILE PARSING BODY----")
+                    logger.error(e)("----ERROR OCCURRED WHILE PARSING BODY----")
                     println(body)
-                    println(e)
                     InternalServerError(new Exception("An error occurred parsing your event!"))
                   case Right(body) =>
                     discordWebhookService.getById(providerSettings.discordWebhookId) flatMap {
