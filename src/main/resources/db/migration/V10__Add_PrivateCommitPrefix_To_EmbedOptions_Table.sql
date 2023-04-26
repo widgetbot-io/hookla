@@ -1,0 +1,1 @@
+ALTER TABLE embed_options ADD COLUMN private_commit_prefix TEXT NULL DEFAULT NULL;
