@@ -6,7 +6,6 @@ import io.circe.generic.auto._
 import io.circe.syntax._
 import io.finch._
 import io.finch.circe._
-import org.log4s._
 import venix.hookla.handlers.MainHandler
 import venix.hookla.handlers.github.GithubHandler
 import venix.hookla.handlers.gitlab.GitlabHandler
@@ -26,7 +25,6 @@ class WebhookController(
 )(
     implicit executionContext: ExecutionContext
 ) extends BaseController {
-  private val logger = getLogger
 
   def endpoints = process :+: getHookInfo
 
