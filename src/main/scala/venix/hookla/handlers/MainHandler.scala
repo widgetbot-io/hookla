@@ -28,7 +28,7 @@ class MainHandler(
       case payload: GithubPayload => githubHandler.handle(payload, data)
       case payload: GitlabPayload => gitlabHandler.handle(payload, data)
       case _ =>
-        println("This provider is unhandled, you need to add an entry into MainHandler.")
+        logger.warn("This provider is unhandled, you need to add an entry into MainHandler.")
         ???
     }
   }
