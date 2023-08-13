@@ -1,23 +1,34 @@
 package venix.hookla
 
-case class HooklaConfig (
-  environment: String,
-  app: AppConfig,
-  postgres: PostgresConfig,
-  flywayConfig: FlywayConfig,
+import io.circe.generic.auto._
+import io.circe.config.parser
+import zio.{UIO, ZIO}
+
+case class HooklaConfig(
+    environment: String,
+    app: AppConfig,
+    postgres: PostgresConfig,
+    flywayConfig: FlywayConfig
 )
 
 case class AppConfig(
-  port: Int
+    port: Int
 )
 
 case class PostgresConfig(
-  url: String,
-  connectionTimeout: Int
+    url: String,
+    connectionTimeout: Int
 )
 
 case class FlywayConfig(
-  url: String,
-  user: String,
-  password: String
+    url: String,
+    user: String,
+    password: String
 )
+
+object HooklaConfig {
+  def apply(): UIO[HooklaConfig] = ZIO.fromEither(parser.decode[HooklaConfig]()).orDie
+
+  def pure(): HooklaConfig =
+    parser.decode[HooklaConfig]().fold(errors => throw errors.fillInStackTrace(), identity)
+}

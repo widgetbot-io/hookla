@@ -39,28 +39,33 @@ val circeConfVersion = "0.8.0"
 val circeVersion     = "0.13.0"
 val log4sVersion     = "1.8.2"
 
-lazy val catsVersion    = "2.9.0"
-lazy val zioVersion     = "2.0.6"
-lazy val calibanVersion = "2.0.2"
+lazy val zioVersion     = "2.0.13"
+lazy val calibanVersion = "2.2.1"
 lazy val doobieVersion  = "1.0.0-RC1"
 
 libraryDependencies ++= Seq(
-  "ch.qos.logback" % "logback-classic" % "1.2.3",
+  "ch.qos.logback" % "logback-classic" % "1.4.7",
   "net.katsstuff" %% "ackcord-core"    % "0.17.1",
   // Enumeratum
-  "com.beachape" %% "enumeratum"       % "1.5.15",
-  "com.beachape" %% "enumeratum-circe" % "1.5.23",
+  "com.beachape" %% "enumeratum"       % "1.7.2",
+  "com.beachape" %% "enumeratum-circe" % "1.7.2",
   // ZIO Rewrite
-  "org.typelevel"         %% "cats-core"                 % catsVersion,
-  "dev.zio"               %% "zio"                       % zioVersion,
-  "dev.zio"               %% "zio-streams"               % zioVersion,
-  "dev.zio"               %% "zio-json"                  % "0.4.2",
-  "dev.zio"               %% "zio-config"                % "3.0.7",
-  "dev.zio"               %% "zio-interop-cats"          % "23.0.0.0",
-  "io.d11"                %% "zhttp"                     % "2.0.0-RC10",
-  "com.github.ghostdogpr" %% "caliban"                   % calibanVersion,
-  "com.github.ghostdogpr" %% "caliban-zio-http"          % calibanVersion,
-  "io.getquill"           %% "quill-jasync-zio-postgres" % "4.6.0"
+  "com.github.ghostdogpr"       %% "caliban"                   % calibanVersion,
+  "com.github.ghostdogpr"       %% "caliban-zio-http"          % calibanVersion,
+  "dev.zio"                     %% "zio"                       % zioVersion,
+  "dev.zio"                     %% "zio-streams"               % zioVersion,
+  "dev.zio"                     %% "zio-json"                  % "0.5.0",
+  "dev.zio"                     %% "zio-config"                % "3.0.7",
+  "dev.zio"                     %% "zio-interop-cats"          % "23.0.03",
+  "dev.zio"                     %% "zio-http"                  % "3.0.0-RC1",
+  "dev.zio"                     %% "zio-logging-slf4j2"        % "2.1.14",
+  "io.getquill"                 %% "quill-jasync-zio-postgres" % "4.6.0",
+  "com.softwaremill.sttp.tapir" %% "tapir-json-circe"          % "1.2.11", // Circe
+  // Flyway and Postgres Driver
+  "org.flywaydb"   % "flyway-core" % "9.16.0",
+  "org.postgresql" % "postgresql"  % "42.5.4",
+  // Circe
+  "io.circe" %% "circe-config" % "0.10.0"
 )
 
 scalacOptions ++= Seq(
