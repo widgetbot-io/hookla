@@ -12,5 +12,5 @@ CREATE TABLE hooks
     source_id  VARCHAR(128) NOT NULL,
 
     created_at timestamp    NOT NULL      DEFAULT NOW(),
-    updated_at timestamp    NOT NULL      DEFAULT NOW(),
+    updated_at timestamp    NOT NULL      DEFAULT NOW()
 )
