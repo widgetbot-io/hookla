@@ -9,6 +9,7 @@ import io.getquill._
 import io.getquill.context.zio._
 import io.getquill.util.LoadConfig
 import sttp.tapir.json.circe._
+import venix.hookla.RequestError.Env
 import venix.hookla.resolvers._
 import venix.hookla.services.db._
 import zio._
@@ -26,10 +27,10 @@ object App extends ZIOAppDefault {
   private val app = for {
     _                <- ZIO.logInfo("Starting Hookla!")
     _                <- ZIO.service[ZioJAsyncConnection]
-    migrationService <- ZIO.service[FlywayMigrationService]
+    migrationService <- ZIO.service[IFlywayMigrationService]
     _                <- migrationService.migrate().orDie
 
-    schemaResolver <- ZIO.service[SchemaResolver]
+    schemaResolver <- ZIO.service[ISchemaResolver]
     rootResolver   <- schemaResolver.rootResolver
     api = graphQL(rootResolver) @@ printErrors @@ timeout(3 seconds) @@ apolloTracing
 
@@ -45,8 +46,14 @@ object App extends ZIOAppDefault {
     _ <- Server.serve[Any](app).forever.unit // Causes issues if left as Nothing
   } yield ()
 
+  val addSimpleLogger: ZLayer[Any, Nothing, Unit] =
+    Runtime.addLogger((_, _, _, message: () => Any, _, _, _, _) => println(message()))
+
+  override val bootstrap: ZLayer[Any, Nothing, Unit] =
+    addSimpleLogger
+
   private val quillConfig: JAsyncContextConfig[PostgreSQLConnection] = PostgresJAsyncContextConfig(LoadConfig("postgres"))
-  override def run: ZIO[Any with ZIOAppArgs with Scope, Any, Any] =
+  override def run: ZIO[Env with ZIOAppArgs with Scope, Any, Any] =
     app
       .provide(
         ZLayer.fromZIO(HooklaConfig()),
@@ -55,10 +62,13 @@ object App extends ZIOAppDefault {
         SinkResolver.live,
         SourceResolver.live,
         SchemaResolver.live,
+        UserResolver.live,
+        UserService.live,
         // zhttp server config
         Server.defaultWithPort(8443),
         logger
 //      ZLayer.Debug.mermaid,
       )
+      .tapErrorCause(cause => ZIO.logInfoCause(cause))
       .exitCode
 }

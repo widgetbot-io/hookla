@@ -9,7 +9,7 @@ trait BaseDBService {
   type Team     = venix.hookla.models.Team
   type TeamUser = venix.hookla.models.TeamUser
 
-  protected lazy val users: Quoted[EntityQuery[User]]         = quote(querySchema[User]("\"user\""))
+  protected lazy val users: Quoted[EntityQuery[User]]         = quote(querySchema[User]("users"))
   protected lazy val teams: Quoted[EntityQuery[Team]]         = quote(querySchema[Team]("teams"))
   protected lazy val teamUsers: Quoted[EntityQuery[TeamUser]] = quote(querySchema[TeamUser]("team_users"))
 }
