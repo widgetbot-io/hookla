@@ -4,8 +4,10 @@ import caliban.interop.tapir.HttpInterpreter
 import caliban.wrappers.ApolloTracing.apolloTracing
 import caliban.wrappers.Wrappers.{printErrors, timeout}
 import caliban.{CalibanError, ZHttpAdapter, graphQL}
-import io.getquill.SnakeCase
-import io.getquill.context.zio.PostgresZioJAsyncContext
+import com.github.jasync.sql.db.postgresql.PostgreSQLConnection
+import io.getquill._
+import io.getquill.context.zio._
+import io.getquill.util.LoadConfig
 import sttp.tapir.json.circe._
 import venix.hookla.resolvers._
 import venix.hookla.services.db._
@@ -16,35 +18,39 @@ import zio.logging.backend.SLF4J
 import scala.language.postfixOps
 
 object App extends ZIOAppDefault {
-  object QuillContext extends PostgresZioJAsyncContext(SnakeCase)
-
   import caliban.schema.Schema.auto._
 
   // Allows zio-logging to use slf4j (logback)
   private val logger = Runtime.removeDefaultLoggers >>> SLF4J.slf4j
 
-  private val app: ZIO[Any with Server with SchemaResolver with FlywayMigrationService, CalibanError.ValidationError, Unit] = for {
+  private val app = for {
+    _                <- ZIO.logInfo("Starting Hookla!")
+    _                <- ZIO.service[ZioJAsyncConnection]
     migrationService <- ZIO.service[FlywayMigrationService]
     _                <- migrationService.migrate().orDie
 
     schemaResolver <- ZIO.service[SchemaResolver]
     rootResolver   <- schemaResolver.rootResolver
     api = graphQL(rootResolver) @@ printErrors @@ timeout(3 seconds) @@ apolloTracing
-    apiInterpreter <- api.interpreter.map(_.mapError(_ => new Throwable("Error")))
-    interpreter = apiInterpreter
-    app: App[Any] = Http
+
+    apiInterpreter <- api.interpreter
+    app = Http
       .collectHttp[Request] { case _ -> !! / "api" / "graphql" =>
-        ZHttpAdapter.makeHttpService(HttpInterpreter(interpreter))
+        ZHttpAdapter.makeHttpService(HttpInterpreter(apiInterpreter))
       }
-      .tapErrorCauseZIO(cause => ZIO.succeed(println(cause.prettyPrint)))
+      .tapErrorCauseZIO(cause => ZIO.logErrorCause(cause))
       .withDefaultErrorResponse
+
+    _ <- ZIO.logInfo("Starting GraphQL Server on ::8443")
     _ <- Server.serve[Any](app).forever.unit // Causes issues if left as Nothing
   } yield ()
 
+  private val quillConfig: JAsyncContextConfig[PostgreSQLConnection] = PostgresJAsyncContextConfig(LoadConfig("postgres"))
   override def run: ZIO[Any with ZIOAppArgs with Scope, Any, Any] =
     app
       .provide(
         ZLayer.fromZIO(HooklaConfig()),
+        ZLayer.succeed(quillConfig) >>> ZioJAsyncConnection.live[PostgreSQLConnection],
         FlywayMigrationService.live,
         SinkResolver.live,
         SourceResolver.live,
