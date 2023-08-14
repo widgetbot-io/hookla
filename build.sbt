@@ -45,7 +45,6 @@ lazy val doobieVersion  = "1.0.0-RC1"
 
 libraryDependencies ++= Seq(
   "ch.qos.logback" % "logback-classic" % "1.4.7",
-  "net.katsstuff" %% "ackcord-core"    % "0.17.1",
   // Enumeratum
   "com.beachape" %% "enumeratum"       % "1.7.2",
   "com.beachape" %% "enumeratum-circe" % "1.7.2",
@@ -59,6 +58,7 @@ libraryDependencies ++= Seq(
   "dev.zio"                     %% "zio-interop-cats"          % "23.0.03",
   "dev.zio"                     %% "zio-http"                  % "3.0.0-RC1",
   "dev.zio"                     %% "zio-logging-slf4j2"        % "2.1.14",
+  "dev.zio"                     %% "zio-prelude"               % "1.0.0-RC20",
   "io.getquill"                 %% "quill-jasync-zio-postgres" % "4.6.0",
   "com.softwaremill.sttp.tapir" %% "tapir-json-circe"          % "1.2.11", // Circe
   // Flyway and Postgres Driver
