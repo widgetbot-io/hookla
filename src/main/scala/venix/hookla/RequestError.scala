@@ -4,7 +4,7 @@ import caliban.CalibanError.ExecutionError
 import caliban.schema.Schema
 import io.getquill.context.zio.ZioJAsyncConnection
 import venix.hookla.resolvers.IUserResolver
-import zio.IO
+import zio.{IO, ZIO}
 
 sealed trait RequestError
 
@@ -29,6 +29,7 @@ object RequestError {
 
   type Env             = HooklaConfig with ZioJAsyncConnection with IUserResolver
   type Result[T]       = IO[RequestError, T]
+  type Task[T]         = ZIO[Env, RequestError, T]
   type CustomSchema[T] = Schema[Any, T]
 
   implicit def customEffectSchema[A: CustomSchema]: CustomSchema[Result[A]] =

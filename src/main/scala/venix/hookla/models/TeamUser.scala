@@ -7,6 +7,7 @@ import java.util.Date
 case class TeamUser(
     teamId: TeamId,
     userId: UserId,
+    admin: Boolean,
     createdAt: Date,
     updatedAt: Date
 )

@@ -70,6 +70,7 @@ object App extends ZIOAppDefault {
         SchemaResolver.live,
         UserResolver.live,
         UserService.live,
+        TeamService.live,
         // zhttp server config
         Server.defaultWithPort(8443),
         logger
