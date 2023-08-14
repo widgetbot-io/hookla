@@ -6,6 +6,7 @@ import venix.hookla.services.db.{IUserService, UserService}
 import venix.hookla.types.UserId
 import zio.{ZIO, ZLayer}
 import venix.hookla.RequestError._
+import venix.hookla.services.http.IDiscordUserService
 
 import java.util.UUID
 
@@ -14,6 +15,7 @@ trait IUserResolver {
 }
 
 class UserResolver(
+    private val discordUserService: IDiscordUserService,
     private val userService: IUserService
 ) extends IUserResolver {
 
@@ -23,20 +25,20 @@ class UserResolver(
       _ => UnknownError,
       _.fold(sys.error("boom!")) { user =>
         User(
-          user.id.unwrap
-//          resolveDiscordUser(user.discordId),
-//          resolveTeams(user.id)
+          user.id.unwrap,
+          resolveDiscordUser(user.discordId),
+          resolveTeams(user.id)
         )
       }
     )
 
-  def resolveDiscordUser(discordId: String): Result[Option[DiscordUser]] = ZIO.succeed(???)
+  def resolveDiscordUser(discordId: String): Result[Option[DiscordUser]] = discordUserService.get(discordId).map(_.map(_.toEntity))
   def resolveTeams(userId: UserId): Result[List[Team]]                   = ZIO.succeed(???)
 }
 
 object UserResolver {
-  private type In = IUserService
-  private def create(userService: IUserService) = new UserResolver(userService)
+  private type In = IUserService with IDiscordUserService
+  private def create(userService: IUserService, discordUserService: IDiscordUserService) = new UserResolver(discordUserService, userService)
 
   val live: ZLayer[In, Throwable, IUserResolver] = ZLayer.fromFunction(create _)
 }

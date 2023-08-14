@@ -49,23 +49,26 @@ libraryDependencies ++= Seq(
   "com.beachape" %% "enumeratum"       % "1.7.2",
   "com.beachape" %% "enumeratum-circe" % "1.7.2",
   // ZIO Rewrite
-  "com.github.ghostdogpr"       %% "caliban"                   % calibanVersion,
-  "com.github.ghostdogpr"       %% "caliban-zio-http"          % calibanVersion,
-  "dev.zio"                     %% "zio"                       % zioVersion,
-  "dev.zio"                     %% "zio-streams"               % zioVersion,
-  "dev.zio"                     %% "zio-json"                  % "0.5.0",
-  "dev.zio"                     %% "zio-config"                % "3.0.7",
-  "dev.zio"                     %% "zio-interop-cats"          % "23.0.03",
-  "dev.zio"                     %% "zio-http"                  % "3.0.0-RC1",
-  "dev.zio"                     %% "zio-logging-slf4j2"        % "2.1.14",
-  "dev.zio"                     %% "zio-prelude"               % "1.0.0-RC20",
-  "io.getquill"                 %% "quill-jasync-zio-postgres" % "4.6.0",
-  "com.softwaremill.sttp.tapir" %% "tapir-json-circe"          % "1.2.11", // Circe
+  "com.github.ghostdogpr" %% "caliban"                   % calibanVersion,
+  "com.github.ghostdogpr" %% "caliban-zio-http"          % calibanVersion,
+  "dev.zio"               %% "zio"                       % zioVersion,
+  "dev.zio"               %% "zio-streams"               % zioVersion,
+  "dev.zio"               %% "zio-json"                  % "0.5.0",
+  "dev.zio"               %% "zio-config"                % "3.0.7",
+  "dev.zio"               %% "zio-interop-cats"          % "23.0.03",
+  "dev.zio"               %% "zio-http"                  % "3.0.0-RC1",
+  "dev.zio"               %% "zio-logging-slf4j2"        % "2.1.14",
+  "dev.zio"               %% "zio-prelude"               % "1.0.0-RC20",
+  "io.getquill"           %% "quill-jasync-zio-postgres" % "4.6.0",
   // Flyway and Postgres Driver
   "org.flywaydb"   % "flyway-core" % "9.16.0",
   "org.postgresql" % "postgresql"  % "42.5.4",
   // Circe
-  "io.circe" %% "circe-config" % "0.10.0"
+  "io.circe" %% "circe-config" % "0.10.0",
+  // STTP
+  "com.softwaremill.sttp.tapir"   %% "tapir-json-circe" % "1.2.10",
+  "com.softwaremill.sttp.client3" %% "zio"              % "3.8.13",
+  "com.softwaremill.sttp.client3" %% "circe"            % "3.8.13"
 )
 
 scalacOptions ++= Seq(

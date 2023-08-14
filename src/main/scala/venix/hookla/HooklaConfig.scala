@@ -8,7 +8,8 @@ case class HooklaConfig(
     environment: String,
     app: AppConfig,
     postgres: PostgresConfig,
-    flywayConfig: FlywayConfig
+    flywayConfig: FlywayConfig,
+    discord: DiscordConfig
 )
 
 case class AppConfig(
@@ -18,6 +19,10 @@ case class AppConfig(
 case class PostgresConfig(
     url: String,
     connectionTimeout: Int
+)
+
+case class DiscordConfig(
+    token: String
 )
 
 case class FlywayConfig(

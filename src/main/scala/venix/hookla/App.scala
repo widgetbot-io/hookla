@@ -8,10 +8,13 @@ import com.github.jasync.sql.db.postgresql.PostgreSQLConnection
 import io.getquill._
 import io.getquill.context.zio._
 import io.getquill.util.LoadConfig
+import sttp.client3.httpclient.zio.HttpClientZioBackend
 import sttp.tapir.json.circe._
 import venix.hookla.RequestError.Env
 import venix.hookla.resolvers._
+import venix.hookla.services.core.HTTPService
 import venix.hookla.services.db._
+import venix.hookla.services.http.DiscordUserService
 import zio._
 import zio.http._
 import zio.logging.backend.SLF4J
@@ -28,7 +31,7 @@ object App extends ZIOAppDefault {
     _                <- ZIO.logInfo("Starting Hookla!")
     _                <- ZIO.service[ZioJAsyncConnection]
     migrationService <- ZIO.service[IFlywayMigrationService]
-    _                <- migrationService.migrate().orDie
+//    _                <- migrationService.migrate().orDie
 
     schemaResolver <- ZIO.service[ISchemaResolver]
     rootResolver   <- schemaResolver.rootResolver
@@ -53,12 +56,15 @@ object App extends ZIOAppDefault {
     addSimpleLogger
 
   private val quillConfig: JAsyncContextConfig[PostgreSQLConnection] = PostgresJAsyncContextConfig(LoadConfig("postgres"))
-  override def run: ZIO[Env with ZIOAppArgs with Scope, Any, Any] =
+  override def run =
     app
       .provide(
         ZLayer.fromZIO(HooklaConfig()),
         ZLayer.succeed(quillConfig) >>> ZioJAsyncConnection.live[PostgreSQLConnection],
+        HttpClientZioBackend.layer(),
+        HTTPService.live,
         FlywayMigrationService.live,
+        DiscordUserService.live,
         SinkResolver.live,
         SourceResolver.live,
         SchemaResolver.live,
