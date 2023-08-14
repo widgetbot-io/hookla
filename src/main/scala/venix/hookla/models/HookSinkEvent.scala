@@ -1,10 +1,12 @@
 package venix.hookla.models
 
-import java.util.{Date, UUID}
+import venix.hookla.types.{HookSettingsId, HookSinkId}
+
+import java.util.Date
 
 case class HookSinkEvent(
-    hookSinkId: UUID,
-    hookSettingsId: Option[UUID],
+    hookSinkId: HookSinkId,
+    hookSettingsId: Option[HookSettingsId],
     eventId: String,
     createdAt: Date,
     updatedAt: Date

@@ -39,6 +39,9 @@ package object types {
   object HookId extends RichNewtype[UUID]
   type HookId = HookId.Type
 
+  object HookSinkId extends RichNewtype[UUID]
+  type HookSinkId = HookSinkId.Type
+
   object HookSettingsId extends RichNewtype[UUID]
   type HookSettingsId = HookSettingsId.Type
 }

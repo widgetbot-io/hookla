@@ -1,10 +1,12 @@
 package venix.hookla.models
 
-import java.util.{Date, UUID}
+import venix.hookla.types.{HookId, TeamId}
+
+import java.util.Date
 
 case class Hook(
-    id: UUID,
-    teamId: UUID,
+    id: HookId,
+    teamId: TeamId,
     sourceId: String,
     createdAt: Date,
     updatedAt: Date

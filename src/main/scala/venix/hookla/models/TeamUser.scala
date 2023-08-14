@@ -1,10 +1,12 @@
 package venix.hookla.models
 
-import java.util.{Date, UUID}
+import venix.hookla.types.{TeamId, UserId}
+
+import java.util.Date
 
 case class TeamUser(
-    teamId: UUID,
-    userId: UUID,
+    teamId: TeamId,
+    userId: UserId,
     createdAt: Date,
     updatedAt: Date
 )
