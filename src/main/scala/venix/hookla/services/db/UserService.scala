@@ -1,18 +1,15 @@
 package venix.hookla.services.db
 
-import io.getquill.EntityQuery
 import io.getquill.context.zio.ZioJAsyncConnection
-import venix.hookla.models.User
+import venix.hookla.types.UserId
 import zio.{Task, ZLayer}
-
-import java.util.UUID
 
 class UserService(
     private val ctx: ZioJAsyncConnection
 ) extends BaseDBService {
   import venix.hookla.QuillContext._
 
-  def getById(id: UUID): Task[Option[User]] =
+  def getById(id: UserId): Task[Option[User]] =
     run {
       users.filter(_.id == lift(id))
     }

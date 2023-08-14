@@ -1,6 +1,7 @@
 package venix.hookla.services.db
 
 import io.getquill.context.zio.ZioJAsyncConnection
+import venix.hookla.types.TeamId
 import zio.{Task, ZLayer}
 
 import java.util.UUID
@@ -10,7 +11,7 @@ class TeamService(
 ) extends BaseDBService {
   import venix.hookla.QuillContext._
 
-  def getById(id: UUID): Task[Option[Team]] =
+  def getById(id: TeamId): Task[Option[Team]] =
     run {
       teams.filter(_.id == lift(id))
     }
@@ -18,7 +19,7 @@ class TeamService(
       .provide(ZLayer.succeed(ctx))
 
   // TODO; Should probably be Option[List[User]]
-  def getMembers(id: UUID): Task[List[User]] =
+  def getMembers(id: TeamId): Task[List[User]] =
     run {
       teamUsers
         .join(users)
