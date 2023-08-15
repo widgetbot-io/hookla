@@ -1,4 +1,4 @@
-name: Docker
+name: "Build"
 on:
   push:
     branches:
@@ -13,12 +13,29 @@ jobs:
         run: sbt clean
       - name: Login to docker
         run: echo ${{ secrets.PAT }} | docker login ghcr.io --username yomanz --password-stdin
-      - name: Compile the project and push the docker image
+      - name: Compile and build project
         run: |
-          sbt version
-          sbt compile
-          sbt docker:stage
+          sbt clean compile docker:stage
           cd target/docker/stage
-          docker build -t ghcr.io/widgetbot-io/hookla:${{github.sha}} -t ghcr.io/widgetbot-io/hookla:latest .
+          docker build -t ghcr.io/widgetbot-io/hookla:${{github.sha}} -t ghcr.io/widgetbot-io/hookla:staging -t ghcr.io/widgetbot-io/hookla:development .
+      - name: Scan current project
+        uses: anchore/scan-action@v3
+        id: scan
+        with:
+          image: ghcr.io/widgetbot-io/hookla:development
+          fail-build: false
+          acs-report-enable: true
+      - name: Archive security scan results
+        uses: actions/upload-artifact@v3
+        with:
+          name: anchore-scan-report
+          path: ${{ steps.scan.outputs.sarif }}
+      - name: Upload Anchore scan SARIF report
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: ${{ steps.scan.outputs.sarif }}
+      - name: Push docker image
+        run: |
           docker push ghcr.io/widgetbot-io/hookla:${{github.sha}}
-          docker push ghcr.io/widgetbot-io/hookla:latest
+          docker push ghcr.io/widgetbot-io/hookla:staging
+          docker push ghcr.io/widgetbot-io/hookla:development
