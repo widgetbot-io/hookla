@@ -59,12 +59,14 @@ libraryDependencies ++= Seq(
   "dev.zio"               %% "zio-http"                  % "3.0.0-RC1",
   "dev.zio"               %% "zio-logging-slf4j2"        % "2.1.14",
   "dev.zio"               %% "zio-prelude"               % "1.0.0-RC20",
+  "dev.zio"               %% "zio-redis"                 % "0.2.0",
   "io.getquill"           %% "quill-jasync-zio-postgres" % "4.6.0",
   // Flyway and Postgres Driver
   "org.flywaydb"   % "flyway-core" % "9.16.0",
   "org.postgresql" % "postgresql"  % "42.5.4",
   // Circe
-  "io.circe" %% "circe-config" % "0.10.0",
+  "io.circe"      %% "circe-config" % "0.10.0",
+  "com.pauldijou" %% "jwt-circe"    % "5.0.0",
   // STTP
   "com.softwaremill.sttp.tapir"   %% "tapir-json-circe" % "1.2.10",
   "com.softwaremill.sttp.client3" %% "zio"              % "3.8.13",

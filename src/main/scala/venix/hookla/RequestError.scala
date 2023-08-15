@@ -11,11 +11,16 @@ sealed trait RequestError extends Throwable
 object RequestError {
   sealed trait HTTPError extends RequestError
 
+  case class Unauthenticated(message: String) extends RequestError
+
   case class DecodingError(e: io.circe.Error)                 extends RequestError
   case class DatabaseError(message: String, cause: Throwable) extends RequestError
+  case class RedisError(e: zio.redis.RedisError)              extends RequestError
   case class InvalidRequest(message: String)                  extends RequestError
   case class InvalidRequestPayload(message: String)           extends RequestError
-  case object UnknownError                                    extends RequestError
+
+  case class UnhandledError(error: Throwable) extends RequestError
+  case object UnknownError                    extends RequestError
 
   case class RequestTimeout(message: String)       extends HTTPError
   case class InternalServerError(message: String)  extends HTTPError

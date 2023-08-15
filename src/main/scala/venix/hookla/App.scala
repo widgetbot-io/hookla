@@ -14,6 +14,7 @@ import venix.hookla.services.http.DiscordUserService
 import zio._
 import zio.http._
 import zio.logging.backend.SLF4J
+import zio.redis._
 
 import scala.language.postfixOps
 
@@ -51,6 +52,12 @@ object App extends ZIOAppDefault {
   override def run =
     app
       .provide(
+        // Bloody redis
+        Redis.layer,
+        RedisExecutor.layer,
+        ZLayer.succeed(RedisConfig.Default), // TODO: Make this configurable
+        ZLayer.succeed(CodecSupplier.utf8string),
+        /// End bloody redis
         ZLayer.fromZIO(HooklaConfig()),
         ZLayer.succeed(quillConfig) >>> ZioJAsyncConnection.live[PostgreSQLConnection],
         HttpClientZioBackend.layer(),

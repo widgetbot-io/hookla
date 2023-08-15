@@ -9,11 +9,16 @@ case class HooklaConfig(
     app: AppConfig,
     postgres: PostgresConfig,
     flywayConfig: FlywayConfig,
-    discord: DiscordConfig
+    discord: DiscordConfig,
+    auth: AuthConfig
 )
 
 case class AppConfig(
     port: Int
+)
+
+case class AuthConfig(
+    jwtSecret: String
 )
 
 case class PostgresConfig(

@@ -12,6 +12,7 @@ import venix.hookla.types.RichNewtype
 import zio._
 import zio.http.Server
 import zio.prelude.Equivalence
+import zio.redis.Redis
 
 package object hookla {
   implicit def newtypeEncoder[A, T <: RichNewtype[A]#Type](implicit equiv: Equivalence[A, T]): MappedEncoding[T, A] = MappedEncoding[T, A](RichNewtype.unwrap(_))
@@ -19,7 +20,7 @@ package object hookla {
 
   object QuillContext extends PostgresZioJAsyncContext(SnakeCase)
 
-  type Env = HooklaConfig with ZioJAsyncConnection with SttpClient with IUserResolver with IHTTPService with IFlywayMigrationService with IDiscordUserService with ISinkResolver with ISourceResolver with ISchemaResolver with IUserResolver with IUserService with ITeamService with Server
+  type Env = HooklaConfig with ZioJAsyncConnection with Redis with SttpClient with IUserResolver with IHTTPService with IFlywayMigrationService with IDiscordUserService with ISinkResolver with ISourceResolver with ISchemaResolver with IUserResolver with IUserService with ITeamService with Server
 
   type Result[T]       = IO[RequestError, T]
   type Task[T]         = ZIO[Env, RequestError, T]
