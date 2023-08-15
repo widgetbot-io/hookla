@@ -4,8 +4,7 @@ import com.typesafe.sbt.packager.docker.DockerPermissionStrategy
 
 name := "hookla"
 
-version := "0.1"
-
+version := "v0.0.1-canary"
 scalaVersion := "2.13.8"
 
 lazy val hookla = (project in file("."))
@@ -15,7 +14,7 @@ lazy val hookla = (project in file("."))
   .settings(dockerUsername := Some("widgetbot-io"))
   .settings(packageName in Docker := "hookla")
   .settings(dockerUpdateLatest := true)
-  .settings(dockerBaseImage := "gcr.io/distroless/java:11")
+  .settings(dockerBaseImage := "gcr.io/distroless/java:17")
   .settings(daemonUserUid in Docker := None)
   .settings(daemonUser in Docker := "root")
   .settings(dockerPermissionStrategy := DockerPermissionStrategy.None)
