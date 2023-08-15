@@ -6,7 +6,7 @@ import io.getquill.context.zio.ZioJAsyncConnection
 import venix.hookla.resolvers.IUserResolver
 import zio.{IO, ZIO}
 
-sealed trait RequestError
+sealed trait RequestError extends Throwable
 
 object RequestError {
   sealed trait HTTPError extends RequestError
@@ -26,18 +26,4 @@ object RequestError {
   case class Unauthorized(message: String)         extends HTTPError
   case class DeserializationError(message: String) extends HTTPError
   case class GenericHttpError(message: String)     extends HTTPError
-
-  type Env             = HooklaConfig with ZioJAsyncConnection with IUserResolver
-  type Result[T]       = IO[RequestError, T]
-  type Task[T]         = ZIO[Env, RequestError, T]
-  type CustomSchema[T] = Schema[Any, T]
-
-  implicit def customEffectSchema[A: CustomSchema]: CustomSchema[Result[A]] =
-    Schema.customErrorEffectSchema {
-      case DatabaseError(message, cause)  => ExecutionError(message)
-      case InvalidRequest(message)        => ExecutionError(message)
-      case InvalidRequestPayload(message) => ExecutionError(message)
-      case UnknownError                   => ExecutionError("Something went wrong, please try again later.")
-      case _                              => ExecutionError("Something went wrong, please don't try again later.")
-    }
 }

@@ -3,8 +3,7 @@ package venix.hookla.services.http
 import io.circe.Codec
 import io.circe.generic.semiauto._
 import sttp.client3.UriContext
-import venix.hookla.HooklaConfig
-import venix.hookla.RequestError.Result
+import venix.hookla.{HooklaConfig, Result}
 import venix.hookla.services.core.{IHTTPService, Options}
 import zio.ZLayer
 

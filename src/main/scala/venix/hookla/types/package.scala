@@ -1,5 +1,6 @@
 package venix.hookla
 
+import caliban.schema.{ArgBuilder, Schema}
 import io.circe.{Codec, Decoder, Encoder}
 import zio.prelude._
 
@@ -23,25 +24,45 @@ package object types {
   }
 
   object RichNewtype {
-    def wrap[FROM, TO](a: FROM)(implicit equiv: Equivalence[FROM, TO]): TO   = implicitly[Equivalence[FROM, TO]].to(a)
-    def unwrap[FROM, TO](a: TO)(implicit equiv: Equivalence[FROM, TO]): FROM = implicitly[Equivalence[FROM, TO]].from(a)
+    def wrap[F, T](a: F)(implicit equiv: Equivalence[F, T]): T   = implicitly[Equivalence[F, T]].to(a)
+    def unwrap[F, T](a: T)(implicit equiv: Equivalence[F, T]): F = implicitly[Equivalence[F, T]].from(a)
   }
 
-  object UserId extends RichNewtype[UUID]
+  trait AsCoercible[A, B] {
+    @inline final def apply(a: A): B = a.asInstanceOf[B]
+  }
+
+  object AsCoercible {
+    def apply[A, B](implicit ev: AsCoercible[A, B]): AsCoercible[A, B] = ev
+    def instance[A, B]: AsCoercible[A, B]                              = _instance.asInstanceOf[AsCoercible[A, B]]
+
+    private val _instance = new AsCoercible[Any, Any] {}
+  }
+
+  trait Coercible[T] {
+    type Type
+
+    @inline implicit def wrapC: AsCoercible[T, Type]               = AsCoercible.instance
+    @inline implicit def unwrapC: AsCoercible[Type, T]             = AsCoercible.instance
+    @inline implicit def wrapM[M[_]]: AsCoercible[M[T], M[Type]]   = AsCoercible.instance
+    @inline implicit def unwrapM[M[_]]: AsCoercible[M[Type], M[T]] = AsCoercible.instance
+  }
+
+  object UserId extends RichNewtype[UUID] with Coercible[UUID]
   type UserId = UserId.Type
 
-  object TeamId extends RichNewtype[UUID]
+  object TeamId extends RichNewtype[UUID] with Coercible[UUID]
   type TeamId = TeamId.Type
 
-  object TeamUserId extends RichNewtype[UUID]
+  object TeamUserId extends RichNewtype[UUID] with Coercible[UUID]
   type TeamUserId = TeamUserId.Type
 
-  object HookId extends RichNewtype[UUID]
+  object HookId extends RichNewtype[UUID] with Coercible[UUID]
   type HookId = HookId.Type
 
-  object HookSinkId extends RichNewtype[UUID]
+  object HookSinkId extends RichNewtype[UUID] with Coercible[UUID]
   type HookSinkId = HookSinkId.Type
 
-  object HookSettingsId extends RichNewtype[UUID]
+  object HookSettingsId extends RichNewtype[UUID] with Coercible[UUID]
   type HookSettingsId = HookSettingsId.Type
 }

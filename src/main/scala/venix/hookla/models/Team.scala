@@ -15,7 +15,6 @@ case class Team(
   def toEntity: entities.Team =
     entities.Team(
       id = id.unwrap,
-      name = name,
-      members = ZIO.succeed(Nil)
+      name = name
     )
 }

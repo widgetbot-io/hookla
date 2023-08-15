@@ -7,7 +7,7 @@ import sttp.client3.circe._
 import sttp.client3.httpclient.zio.SttpClient
 import sttp.model.{Header, Method, StatusCode, Uri}
 import venix.hookla.RequestError._
-import venix.hookla.resolvers.{ISchemaResolver, ISinkResolver, ISourceResolver, IUserResolver, SchemaResolver}
+import venix.hookla.Result
 import zio._
 
 case class Options(
