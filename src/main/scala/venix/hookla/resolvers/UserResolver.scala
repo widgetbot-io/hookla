@@ -1,8 +1,9 @@
 package venix.hookla.resolvers
 
 import venix.hookla.RequestError._
-import venix.hookla.Result
+import venix.hookla.{Result, Task}
 import venix.hookla.entities.{DiscordUser, Team, User}
+import venix.hookla.http.Auth
 import venix.hookla.services.db.{ITeamService, IUserService}
 import venix.hookla.services.http.IDiscordUserService
 import venix.hookla.types.UserId
@@ -12,7 +13,7 @@ import java.util.UUID
 
 trait IUserResolver {
   // Queries
-  def me: Result[User]
+  def me: Task[User]
 
   // Resolvers
   def resolveDiscordUser(discordId: String): Result[Option[DiscordUser]]
@@ -24,13 +25,7 @@ class UserResolver(
     private val userService: IUserService,
     private val teamService: ITeamService
 ) extends IUserResolver {
-
-  def me: Result[User] = userService
-    .getById(UserId(UUID.fromString("181ec752-2784-4fe7-a031-d13533238f63")))
-    .mapBoth(
-      _ => UnknownError,
-      _.fold(???)(_.toEntity)
-    )
+  def me: Task[User] = Auth.currentUser.map(_.toEntity)
 
   def resolveDiscordUser(discordId: String): Result[Option[DiscordUser]] = discordUserService.get(discordId).map(_.map(_.toEntity))
   def resolveTeams(userId: UserId): Result[List[Team]]                   = teamService.getTeamsForUser(userId).mapBoth(_ => UnknownError, _.map(_.toEntity))

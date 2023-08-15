@@ -5,7 +5,7 @@ import io.circe.syntax._
 import pdi.jwt.exceptions.JwtValidationException
 import pdi.jwt.{JwtAlgorithm, JwtCirce, JwtClaim}
 import venix.hookla.RequestError.{DecodingError, RedisError, Unauthenticated, UnhandledError}
-import venix.hookla.{HooklaConfig, Task}
+import venix.hookla.{HooklaConfig, Result, Task}
 import venix.hookla.models.User
 import venix.hookla.services.db.IUserService
 import venix.hookla.types.UserId
@@ -17,8 +17,8 @@ import java.util.UUID
 import scala.language.postfixOps
 
 trait IAuthService {
-  def createToken(user: User): Task[String]
-  def decodeToken(token: String): Task[User]
+  def createToken(user: User): Result[String]
+  def decodeToken(token: String): Result[User]
 }
 
 class AuthService(
@@ -27,16 +27,16 @@ class AuthService(
     private val userService: IUserService
 ) extends IAuthService {
   private case class AuthToken(id: UUID)
-  implicit val authTokenCodec: Codec[AuthToken] = io.circe.generic.semiauto.deriveCodec
+  implicit private val authTokenCodec: Codec[AuthToken] = io.circe.generic.semiauto.deriveCodec
 
   private def redisKey(userId: UserId): String = s"authkeys:${userId.unwrap.toString}"
 
-  override def createToken(user: User): Task[String] = {
+  override def createToken(user: User): Result[String] = {
     val claim = createClaim(user.id)
     store(redisKey(user.id), claim, 7 days).mapBoth(RedisError, _ => claim)
   }
 
-  override def decodeToken(token: String): Task[User] =
+  override def decodeToken(token: String): Result[User] =
     ZIO
       .fromTry(JwtCirce.decodeJson(token, config.auth.jwtSecret, Seq(JwtAlgorithm.HS512)))
       .map(_.as[AuthToken])

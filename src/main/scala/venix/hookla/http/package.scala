@@ -2,12 +2,13 @@ package venix.hookla
 
 import venix.hookla.RequestError.{Unauthenticated, Unauthorized}
 import venix.hookla.models.User
+import venix.hookla.services.core.AuthService
+import zio.http.{Header, HttpAppMiddleware}
 import zio.{FiberRef, IO, UIO, ULayer, ZIO, ZLayer}
 
 package object http {
   trait Auth {
     def authenticate(token: String): Task[Unit]
-
     def currentUser: IO[RequestError, User]
   }
 
@@ -22,9 +23,18 @@ package object http {
               case Some(user) => ZIO.succeed(user)
               case None       => ZIO.fail(Unauthenticated("You must be logged in to perform this action"))
             }
-            def authenticate(token: String): Task[Unit] = ZIO.succeed(???)
+            def authenticate(token: String): Task[Unit] = AuthService().flatMap(svc => svc.decodeToken(token).flatMap(setUser)).unit
           }
         }
     }
+
+    val middleware = HttpAppMiddleware.customAuthZIO { headers =>
+      headers.get(Header.Authorization).map(_.renderedValue) match {
+        case None        => ZIO.fail(Unauthorized("You must be logged in to perform this action"))
+        case Some(token) => ZIO.serviceWithZIO[Auth](_.authenticate(token)).as(true)
+      }
+    }
+
+    def currentUser: ZIO[Auth, RequestError, User] = ZIO.serviceWithZIO[Auth](_.currentUser)
   }
 }

@@ -12,7 +12,7 @@ final case class Queries(
     sources: Result[List[Source]],
     // Authenticated queries
     @GQLDescription("Returns the current user")
-    me: Result[User],
+    me: Task[User],
     @GQLDescription("Returns all teams the current user is a member of")
     teams: Result[List[Team]]
 )
