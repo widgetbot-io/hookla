@@ -28,41 +28,21 @@ package object types {
     def unwrap[F, T](a: T)(implicit equiv: Equivalence[F, T]): F = implicitly[Equivalence[F, T]].from(a)
   }
 
-  trait AsCoercible[A, B] {
-    @inline final def apply(a: A): B = a.asInstanceOf[B]
-  }
-
-  object AsCoercible {
-    def apply[A, B](implicit ev: AsCoercible[A, B]): AsCoercible[A, B] = ev
-    def instance[A, B]: AsCoercible[A, B]                              = _instance.asInstanceOf[AsCoercible[A, B]]
-
-    private val _instance = new AsCoercible[Any, Any] {}
-  }
-
-  trait Coercible[T] {
-    type Type
-
-    @inline implicit def wrapC: AsCoercible[T, Type]               = AsCoercible.instance
-    @inline implicit def unwrapC: AsCoercible[Type, T]             = AsCoercible.instance
-    @inline implicit def wrapM[M[_]]: AsCoercible[M[T], M[Type]]   = AsCoercible.instance
-    @inline implicit def unwrapM[M[_]]: AsCoercible[M[Type], M[T]] = AsCoercible.instance
-  }
-
-  object UserId extends RichNewtype[UUID] with Coercible[UUID]
+  object UserId extends RichNewtype[UUID]
   type UserId = UserId.Type
 
-  object TeamId extends RichNewtype[UUID] with Coercible[UUID]
+  object TeamId extends RichNewtype[UUID]
   type TeamId = TeamId.Type
 
-  object TeamUserId extends RichNewtype[UUID] with Coercible[UUID]
+  object TeamUserId extends RichNewtype[UUID]
   type TeamUserId = TeamUserId.Type
 
-  object HookId extends RichNewtype[UUID] with Coercible[UUID]
+  object HookId extends RichNewtype[UUID]
   type HookId = HookId.Type
 
-  object HookSinkId extends RichNewtype[UUID] with Coercible[UUID]
+  object HookSinkId extends RichNewtype[UUID]
   type HookSinkId = HookSinkId.Type
 
-  object HookSettingsId extends RichNewtype[UUID] with Coercible[UUID]
+  object HookSettingsId extends RichNewtype[UUID]
   type HookSettingsId = HookSettingsId.Type
 }

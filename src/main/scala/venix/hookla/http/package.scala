@@ -30,7 +30,7 @@ package object http {
 
     val middleware = HttpAppMiddleware.customAuthZIO { headers =>
       headers.get(Header.Authorization).map(_.renderedValue) match {
-        case None        => ZIO.fail(Unauthorized("You must be logged in to perform this action"))
+        case None        => ZIO.fail(Unauthenticated("You must be logged in to perform this action"))
         case Some(token) => ZIO.serviceWithZIO[Auth](_.authenticate(token)).as(true)
       }
     }

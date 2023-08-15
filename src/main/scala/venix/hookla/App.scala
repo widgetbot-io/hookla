@@ -3,10 +3,12 @@ package venix.hookla
 import caliban.ZHttpAdapter
 import caliban.interop.tapir.HttpInterpreter
 import com.github.jasync.sql.db.postgresql.PostgreSQLConnection
+import io.circe.Json
 import io.getquill.context.zio._
 import io.getquill.util.LoadConfig
 import sttp.client3.httpclient.zio.HttpClientZioBackend
 import sttp.tapir.json.circe._
+import venix.hookla.RequestError.Unauthenticated
 import venix.hookla.http.Auth
 import venix.hookla.resolvers._
 import venix.hookla.services.core._
@@ -26,7 +28,7 @@ object App extends ZIOAppDefault {
   private val app: ZIO[Env, Throwable, Unit] = for {
     _                <- ZIO.logInfo("Starting Hookla!")
     migrationService <- ZIO.service[IFlywayMigrationService]
-    _                <- migrationService.migrate().orDie
+//    _                <- migrationService.migrate().orDie
 
     schemaResolver <- ZIO.service[ISchemaResolver]
     api = schemaResolver.graphQL
@@ -37,10 +39,13 @@ object App extends ZIOAppDefault {
         ZHttpAdapter.makeHttpService(HttpInterpreter(apiInterpreter)) @@ Auth.middleware
       }
       .tapErrorCauseZIO(cause => ZIO.logErrorCause(cause))
-      .withDefaultErrorResponse
+      .mapError {
+        case e: Unauthenticated => Response(status = Status.Unauthorized, body = Body.fromString(Json.obj("error" -> Json.fromString(e.message)).spaces2))
+        case _                  => Response(status = Status.InternalServerError)
+      }
 
     _ <- ZIO.logInfo("Starting GraphQL Server on ::8443")
-    _ <- Server.install[Env](app).forever.unit
+    _ <- Server.serve[Env](app).forever.unit
   } yield ()
 
   val addSimpleLogger: ZLayer[Any, Nothing, Unit] =
