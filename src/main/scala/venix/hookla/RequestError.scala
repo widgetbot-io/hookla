@@ -12,6 +12,7 @@ object RequestError {
   sealed trait HTTPError extends RequestError
 
   case class Unauthenticated(message: String) extends RequestError
+  case class Forbidden(message: String)       extends RequestError
 
   case class DecodingError(e: io.circe.Error)       extends RequestError
   case class DatabaseError(e: Throwable)            extends RequestError

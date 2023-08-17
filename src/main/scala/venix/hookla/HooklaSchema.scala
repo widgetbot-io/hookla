@@ -14,7 +14,7 @@ final case class Queries(
     @GQLDescription("Returns the current user")
     me: Task[User],
     @GQLDescription("Returns all teams the current user is a member of")
-    teams: Result[List[Team]]
+    teams: Task[List[Team]]
 )
 
 final case class Mutations(

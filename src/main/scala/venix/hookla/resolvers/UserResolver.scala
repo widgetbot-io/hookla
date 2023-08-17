@@ -17,7 +17,7 @@ trait IUserResolver {
 
   // Resolvers
   def resolveDiscordUser(discordId: String): Result[Option[DiscordUser]]
-  def resolveTeams(userId: UserId): Result[List[Team]]
+  def resolveTeams(userId: UserId): Task[List[Team]]
 }
 
 class UserResolver(
@@ -28,7 +28,13 @@ class UserResolver(
   def me: Task[User] = Auth.currentUser.map(_.toEntity())
 
   def resolveDiscordUser(discordId: String): Result[Option[DiscordUser]] = discordUserService.get(discordId).map(_.map(_.toEntity))
-  def resolveTeams(userId: UserId): Result[List[Team]]                   = teamService.getTeamsForUser(userId).mapBoth(_ => UnknownError, _.map(_.toEntity))
+  def resolveTeams(userId: UserId): Task[List[Team]] = for {
+    // TODO: See if you can inject Auth in the constructor rather than changing this to be a Task
+    me <- Auth.currentUser
+    _  <- ZIO.fail(Forbidden("You can't access this users teams.")) unless (me.id == userId)
+
+    teams <- teamService.getTeamsForUser(userId).map(_.map(_.toEntity))
+  } yield teams
 }
 
 object UserResolver {

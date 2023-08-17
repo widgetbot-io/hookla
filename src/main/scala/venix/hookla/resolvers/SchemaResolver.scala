@@ -22,7 +22,8 @@ class SchemaResolver(
     private val teamResolver: ITeamResolver,
     private val userResolver: IUserResolver,
     private val sourceResolver: ISourceResolver,
-    private val sinkResolver: ISinkResolver
+    private val sinkResolver: ISinkResolver,
+    private val hookResolver: IHookResolver
 ) extends ISchemaResolver
     with GenericSchema[Env] {
 
@@ -51,7 +52,14 @@ class SchemaResolver(
       field("hooks")(t => teamResolver.resolveHooks(TeamId(t.id)))
     )
   }
-  implicit lazy val hookSchema: CustomSchema[Hook] = gen
+  implicit lazy val hookSchema: CustomSchema[Hook] = obj("Hook", None) { implicit ft =>
+    List(
+      field("id")(_.id),
+      field("source")(h => Source("id", "name", "icon")),
+      field("team")(h => hookResolver.resolveTeam(h)),
+      field("sinks")(h => hookResolver.resolveSinks(h))
+    )
+  }
 
   implicit lazy val sourceSchema: CustomSchema[Source]           = gen
   implicit lazy val sinkSchema: CustomSchema[Sink]               = gen
@@ -67,7 +75,7 @@ class SchemaResolver(
         sinks = sinkResolver.getAll,
         sources = sourceResolver.getAll,
         me = userResolver.me,
-        teams = ZIO.succeed(Nil)
+        teams = teamResolver.getForMe
       ),
       Mutations(
         identity
@@ -76,8 +84,8 @@ class SchemaResolver(
 }
 
 object SchemaResolver {
-  private type In = ISourceResolver with ISinkResolver with IUserResolver with ITeamResolver
-  private def create(sourceResolver: ISourceResolver, sinkResolver: ISinkResolver, userResolver: IUserResolver, d: ITeamResolver) = new SchemaResolver(d, userResolver, sourceResolver, sinkResolver)
+  private type In = ISourceResolver with ISinkResolver with IUserResolver with ITeamResolver with IHookResolver
+  private def create(sourceResolver: ISourceResolver, sinkResolver: ISinkResolver, userResolver: IUserResolver, d: ITeamResolver, e: IHookResolver) = new SchemaResolver(d, userResolver, sourceResolver, sinkResolver, e)
 
   val live: ZLayer[In, Throwable, ISchemaResolver] = ZLayer.fromFunction(create _)
 }
