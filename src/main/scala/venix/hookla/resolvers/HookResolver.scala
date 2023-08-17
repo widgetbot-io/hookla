@@ -1,21 +1,21 @@
 package venix.hookla.resolvers
 
 import venix.hookla.Result
-import venix.hookla.entities.{Hook, Sink, Team}
+import venix.hookla.entities.{Hook, HookSink, Sink, Team}
 import venix.hookla.services.db.IHookService
 import venix.hookla.types.{HookId, TeamId}
 import zio.{ZIO, ZLayer}
 
 trait IHookResolver {
   def resolveTeam(hook: Hook): Result[Team]
-  def resolveSinks(hook: Hook): Result[List[Sink]]
+  def resolveSinks(hook: Hook): Result[List[HookSink]]
 }
 
 class HookResolver(
     private val hookService: IHookService
 ) extends IHookResolver {
-  def resolveTeam(hook: Hook): Result[Team]        = ???
-  def resolveSinks(hook: Hook): Result[List[Sink]] = ???
+  def resolveTeam(hook: Hook): Result[Team]            = ???
+  def resolveSinks(hook: Hook): Result[List[HookSink]] = ???
 }
 
 object HookResolver {

@@ -60,6 +60,13 @@ class SchemaResolver(
       field("sinks")(h => hookResolver.resolveSinks(h))
     )
   }
+  implicit lazy val hookSinkSchema: CustomSchema[HookSink] = obj("HookSink", None) { implicit ft =>
+    List(
+      field("id")(_.id),
+      field("sink")(h => Sink("id", "name", "icon")),
+      field("hook")(h => sinkResolver.resolveHook(h))
+    )
+  }
 
   implicit lazy val sourceSchema: CustomSchema[Source]           = gen
   implicit lazy val sinkSchema: CustomSchema[Sink]               = gen
