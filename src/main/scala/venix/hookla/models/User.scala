@@ -11,9 +11,10 @@ case class User(
     discordId: String,
     createdAt: Date
 ) {
-  def toEntity: entities.User =
+  def toEntity(isAdmin: Boolean = false): entities.User =
     venix.hookla.entities.User(
       id = id.unwrap,
-      discordId = discordId
+      discordId = discordId,
+      teamAdmin = isAdmin
     )
 }

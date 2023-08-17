@@ -28,7 +28,8 @@ class SchemaResolver(
 
   implicit def customEffectSchema[A: CustomSchema]: CustomSchema[Result[A]] =
     Schema.customErrorEffectSchema {
-      case DatabaseError(message, cause)  => ExecutionError(message)
+      // TODO: Change in production
+      case DatabaseError(cause)           => ExecutionError(cause.getMessage)
       case InvalidRequest(message)        => ExecutionError(message)
       case InvalidRequestPayload(message) => ExecutionError(message)
       case UnknownError                   => ExecutionError("Something went wrong, please try again later.")

@@ -17,7 +17,7 @@ class TeamResolver(
     private val userService: IUserService,
     private val teamService: ITeamService
 ) extends ITeamResolver {
-  override def resolveMembers(id: TeamId): Result[List[User]] = teamService.getMembers(id).mapBoth(_ => UnknownError, _.map(_.toEntity))
+  override def resolveMembers(id: TeamId): Result[List[User]] = teamService.getMembers(id).mapBoth(_ => UnknownError, _.map { case (user, isAdmin) => user.toEntity(isAdmin) })
 }
 
 object TeamResolver {

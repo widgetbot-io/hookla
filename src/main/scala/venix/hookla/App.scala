@@ -79,6 +79,8 @@ object App extends ZIOAppDefault {
         UserService.live,
         TeamService.live,
         AuthService.live,
+        HookResolver.live,
+        HookService.live,
         // zhttp server config
         Server.defaultWithPort(8443),
         logger

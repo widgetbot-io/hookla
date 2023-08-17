@@ -25,7 +25,7 @@ class UserResolver(
     private val userService: IUserService,
     private val teamService: ITeamService
 ) extends IUserResolver {
-  def me: Task[User] = Auth.currentUser.map(_.toEntity)
+  def me: Task[User] = Auth.currentUser.map(_.toEntity())
 
   def resolveDiscordUser(discordId: String): Result[Option[DiscordUser]] = discordUserService.get(discordId).map(_.map(_.toEntity))
   def resolveTeams(userId: UserId): Result[List[Team]]                   = teamService.getTeamsForUser(userId).mapBoth(_ => UnknownError, _.map(_.toEntity))
