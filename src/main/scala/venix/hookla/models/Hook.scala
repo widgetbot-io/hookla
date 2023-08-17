@@ -10,4 +10,11 @@ case class Hook(
     sourceId: String,
     createdAt: Date,
     updatedAt: Date
-)
+) {
+  def toEntity: venix.hookla.entities.Hook =
+    venix.hookla.entities.Hook(
+      id = id.unwrap,
+      teamId = teamId.unwrap,
+      sourceId = sourceId
+    )
+}

@@ -74,13 +74,13 @@ object App extends ZIOAppDefault {
         SinkResolver.live,
         SourceResolver.live,
         SchemaResolver.live,
-        TeamResolver.live,
         UserResolver.live,
         UserService.live,
         TeamService.live,
         AuthService.live,
         HookResolver.live,
         HookService.live,
+        TeamResolver.live,
         // zhttp server config
         Server.defaultWithPort(8443),
         logger

@@ -47,9 +47,11 @@ class SchemaResolver(
     List(
       field("id")(_.id),
       field("name")(_.name),
-      field("members")(t => teamResolver.resolveMembers(TeamId(t.id)))
+      field("members")(t => teamResolver.resolveMembers(TeamId(t.id))),
+      field("hooks")(t => teamResolver.resolveHooks(TeamId(t.id)))
     )
   }
+  implicit lazy val hookSchema: CustomSchema[Hook] = gen
 
   implicit lazy val sourceSchema: CustomSchema[Source]           = gen
   implicit lazy val sinkSchema: CustomSchema[Sink]               = gen
