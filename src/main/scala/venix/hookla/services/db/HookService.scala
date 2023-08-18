@@ -8,6 +8,8 @@ import zio.ZLayer
 
 trait IHookService extends BaseDBService {
   def get(team: TeamId, hook: HookId): Result[Option[Hook]]
+  def getUnsafe(hook: HookId): Result[Hook]
+
   def getByTeam(team: TeamId): Result[List[Hook]]
 }
 
@@ -23,6 +25,14 @@ class HookService(
         .filter(_.teamId == lift(team))
     }
       .mapBoth(DatabaseError, _.headOption)
+      .provide(ZLayer.succeed(ctx))
+
+  def getUnsafe(hook: HookId) =
+    run {
+      hooks
+        .filter(_.id == lift(hook))
+    }
+      .mapBoth(DatabaseError, _.head)
       .provide(ZLayer.succeed(ctx))
 
   def getByTeam(team: TeamId) =

@@ -3,6 +3,7 @@ package venix.hookla.resolvers
 import venix.hookla.Result
 import venix.hookla.entities.{Hook, HookSink, Sink}
 import venix.hookla.services.db.IHookService
+import venix.hookla.types.HookId
 import zio.{UIO, ZIO, ZLayer}
 
 trait ISinkResolver {
@@ -16,7 +17,7 @@ class SinkResolver(
 ) extends ISinkResolver {
   def getAll: Result[List[Sink]] = ZIO.succeed(Nil)
 
-  def resolveHook(sink: HookSink): Result[Hook] = hookService.get(sink., sink.hookId).map(_.get.toEntity)
+  def resolveHook(sink: HookSink): Result[Hook] = hookService.getUnsafe(HookId(sink.hookId)).map(_.toEntity)
 }
 
 object SinkResolver {
