@@ -85,7 +85,11 @@ class SchemaResolver(
         teams = teamResolver.getForMe
       ),
       Mutations(
-        identity
+        createTeam = args => teamResolver.create(args.name),
+        updateTeam = args => teamResolver.update(TeamId(args.id), args.name),
+        deleteTeam = args => teamResolver.delete(TeamId(args.id)),
+        addTeamMember = args => teamResolver.addMember(TeamId(args.teamId), UserId(args.userId)),
+        removeTeamMember = args => teamResolver.removeMember(TeamId(args.teamId), UserId(args.userId))
       )
     )
 }

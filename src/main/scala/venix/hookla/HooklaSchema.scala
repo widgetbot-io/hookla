@@ -4,6 +4,16 @@ import caliban.schema.Annotations._
 import venix.hookla.RequestError._
 import venix.hookla.entities._
 
+import java.util.UUID
+
+object Args {
+  case class CreateTeamArgs(name: String)
+  case class UpdateTeamArgs(id: UUID, name: String)
+  case class DeleteTeamArgs(id: UUID)
+  case class AddTeamMemberArgs(teamId: UUID, userId: UUID)
+  case class RemoveTeamMemberArgs(teamId: UUID, userId: UUID)
+}
+
 final case class Queries(
     // Public queries
     @GQLDescription("Returns all available sinks")
@@ -18,5 +28,14 @@ final case class Queries(
 )
 
 final case class Mutations(
-    test: String => String
+    @GQLDescription("Creates a new team")
+    createTeam: Args.CreateTeamArgs => Task[Team],
+    @GQLDescription("Updates an existing team")
+    updateTeam: Args.UpdateTeamArgs => Task[Team],
+    @GQLDescription("Deletes an existing team")
+    deleteTeam: Args.DeleteTeamArgs => Task[Unit],
+    @GQLDescription("Adds a user to a team")
+    addTeamMember: Args.AddTeamMemberArgs => Task[Unit],
+    @GQLDescription("Removes a user from a team")
+    removeTeamMember: Args.RemoveTeamMemberArgs => Task[Unit]
 )
