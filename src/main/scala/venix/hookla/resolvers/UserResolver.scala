@@ -4,8 +4,8 @@ import venix.hookla.RequestError._
 import venix.hookla.{Result, Task}
 import venix.hookla.entities.{DiscordUser, Team, User}
 import venix.hookla.http.Auth
-import venix.hookla.services.db.{ITeamService, IUserService}
-import venix.hookla.services.http.IDiscordUserService
+import venix.hookla.services.db.{TeamService, UserService}
+import venix.hookla.services.http.DiscordUserService
 import venix.hookla.types.UserId
 import zio.{ZIO, ZLayer}
 
@@ -21,9 +21,9 @@ trait IUserResolver {
 }
 
 class UserResolver(
-    private val discordUserService: IDiscordUserService,
-    private val userService: IUserService,
-    private val teamService: ITeamService
+                    private val discordUserService: DiscordUserService,
+                    private val userService: UserService,
+                    private val teamService: TeamService
 ) extends IUserResolver {
   def me: Task[User] = Auth.currentUser.map(_.toEntity())
 
@@ -38,8 +38,8 @@ class UserResolver(
 }
 
 object UserResolver {
-  private type In = IUserService with IDiscordUserService with ITeamService
-  private def create(userService: IUserService, discordUserService: IDiscordUserService, teamService: ITeamService) = new UserResolver(discordUserService, userService, teamService)
+  private type In = UserService with DiscordUserService with TeamService
+  private def create(userService: UserService, discordUserService: DiscordUserService, teamService: TeamService) = new UserResolver(discordUserService, userService, teamService)
 
   val live: ZLayer[In, Throwable, IUserResolver] = ZLayer.fromFunction(create _)
 

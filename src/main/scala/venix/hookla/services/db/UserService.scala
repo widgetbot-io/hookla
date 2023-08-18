@@ -6,13 +6,11 @@ import venix.hookla.Result
 import venix.hookla.types.UserId
 import zio.ZLayer
 
-trait IUserService extends BaseDBService {
+trait UserService extends BaseDBService {
   def getById(id: UserId): Result[Option[User]]
 }
 
-class UserService(
-    private val ctx: ZioJAsyncConnection
-) extends IUserService {
+private class UserServiceImpl(private val ctx: ZioJAsyncConnection) extends UserService {
   import venix.hookla.QuillContext._
 
   def getById(id: UserId) =
@@ -25,8 +23,7 @@ class UserService(
 
 object UserService {
   private type In = ZioJAsyncConnection
+  private def create(connection: ZioJAsyncConnection) = new UserServiceImpl(connection)
 
-  private def create(connection: ZioJAsyncConnection) = new UserService(connection)
-
-  val live: ZLayer[In, Throwable, IUserService] = ZLayer.fromFunction(create _)
+  val live: ZLayer[In, Throwable, UserService] = ZLayer.fromFunction(create _)
 }

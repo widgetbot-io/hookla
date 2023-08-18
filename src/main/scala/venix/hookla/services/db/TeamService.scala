@@ -6,7 +6,7 @@ import venix.hookla.Result
 import venix.hookla.types.{TeamId, UserId}
 import zio.ZLayer
 
-trait ITeamService extends BaseDBService {
+trait TeamService extends BaseDBService {
   def getById(id: TeamId): Result[Option[Team]]
   def getTeamsForUser(id: UserId): Result[List[Team]]
   def getMembers(id: TeamId): Result[List[(User, Boolean)]]
@@ -19,9 +19,7 @@ trait ITeamService extends BaseDBService {
   def delete(id: TeamId): Result[Unit]
 }
 
-class TeamService(
-    private val ctx: ZioJAsyncConnection
-) extends ITeamService {
+private class TeamServiceImpl(private val ctx: ZioJAsyncConnection) extends TeamService {
   import venix.hookla.QuillContext._
 
   def getById(id: TeamId) =
@@ -124,8 +122,7 @@ class TeamService(
 
 object TeamService {
   private type In = ZioJAsyncConnection
+  private def create(connection: ZioJAsyncConnection) = new TeamServiceImpl(connection)
 
-  private def create(connection: ZioJAsyncConnection) = new TeamService(connection)
-
-  val live: ZLayer[In, Throwable, ITeamService] = ZLayer.fromFunction(create _)
+  val live: ZLayer[In, Throwable, TeamService] = ZLayer.fromFunction(create _)
 }

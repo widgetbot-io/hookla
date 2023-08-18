@@ -2,7 +2,7 @@ package venix.hookla.resolvers
 
 import venix.hookla.Result
 import venix.hookla.entities.{Hook, HookSink, Sink}
-import venix.hookla.services.db.IHookService
+import venix.hookla.services.db.HookService
 import venix.hookla.types.HookId
 import zio.{UIO, ZIO, ZLayer}
 
@@ -13,7 +13,7 @@ trait ISinkResolver {
 }
 
 class SinkResolver(
-    private val hookService: IHookService
+    private val hookService: HookService
 ) extends ISinkResolver {
   def getAll: Result[List[Sink]] = ZIO.succeed(Nil)
 
@@ -21,8 +21,8 @@ class SinkResolver(
 }
 
 object SinkResolver {
-  private type In = IHookService
-  private def create(a: IHookService) = new SinkResolver(a)
+  private type In = HookService
+  private def create(a: HookService) = new SinkResolver(a)
 
   val live: ZLayer[In, Throwable, ISinkResolver] = ZLayer.fromFunction(create _)
 }

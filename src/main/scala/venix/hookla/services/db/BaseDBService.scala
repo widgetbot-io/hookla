@@ -2,7 +2,7 @@ package venix.hookla.services.db
 
 import io.getquill.{EntityQuery, Quoted}
 
-trait BaseDBService {
+private[db] trait BaseDBService {
   import venix.hookla.QuillContext._
 
   type User     = venix.hookla.models.User

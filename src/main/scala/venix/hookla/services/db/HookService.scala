@@ -6,16 +6,14 @@ import venix.hookla.Result
 import venix.hookla.types.{HookId, TeamId}
 import zio.ZLayer
 
-trait IHookService extends BaseDBService {
+trait HookService extends BaseDBService {
   def get(team: TeamId, hook: HookId): Result[Option[Hook]]
   def getUnsafe(hook: HookId): Result[Hook]
 
   def getByTeam(team: TeamId): Result[List[Hook]]
 }
 
-class HookService(
-    private val ctx: ZioJAsyncConnection
-) extends IHookService {
+private class HookServiceImpl(private val ctx: ZioJAsyncConnection) extends HookService {
   import venix.hookla.QuillContext._
 
   def get(team: TeamId, hook: HookId) =
@@ -46,8 +44,7 @@ class HookService(
 
 object HookService {
   private type In = ZioJAsyncConnection
+  private def create(connection: ZioJAsyncConnection) = new HookServiceImpl(connection)
 
-  private def create(connection: ZioJAsyncConnection) = new HookService(connection)
-
-  val live: ZLayer[In, Throwable, IHookService] = ZLayer.fromFunction(create _)
+  val live: ZLayer[In, Throwable, HookService] = ZLayer.fromFunction(create _)
 }

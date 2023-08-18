@@ -4,8 +4,8 @@ import venix.hookla.RequestError.Forbidden
 import venix.hookla.{Result, Task}
 import venix.hookla.entities.{Hook, Team, User}
 import venix.hookla.http.Auth
-import venix.hookla.services.db.{IHookService, ITeamService, IUserService}
-import venix.hookla.services.http.IDiscordUserService
+import venix.hookla.services.db.{HookService, TeamService, UserService}
+import venix.hookla.services.http.DiscordUserService
 import venix.hookla.types.{TeamId, UserId}
 import zio.{ZIO, ZLayer}
 
@@ -27,10 +27,10 @@ trait ITeamResolver {
 }
 
 class TeamResolver(
-    private val discordUserService: IDiscordUserService,
-    private val userService: IUserService,
-    private val teamService: ITeamService,
-    private val hookService: IHookService
+                    private val discordUserService: DiscordUserService,
+                    private val userService: UserService,
+                    private val teamService: TeamService,
+                    private val hookService: HookService
 ) extends ITeamResolver {
   def getForMe: Task[List[Team]] = Auth.currentUser.flatMap(user => teamService.getTeamsForUser(user.id).map(_.map(_.toEntity)))
 
@@ -120,8 +120,8 @@ class TeamResolver(
 }
 
 object TeamResolver {
-  private type In = IUserService with IDiscordUserService with ITeamService with IHookService
-  private def create(userService: IUserService, discordUserService: IDiscordUserService, teamService: ITeamService, hookService: IHookService) = new TeamResolver(discordUserService, userService, teamService, hookService)
+  private type In = UserService with DiscordUserService with TeamService with HookService
+  private def create(userService: UserService, discordUserService: DiscordUserService, teamService: TeamService, hookService: HookService) = new TeamResolver(discordUserService, userService, teamService, hookService)
 
   val live: ZLayer[In, Throwable, ITeamResolver] = ZLayer.fromFunction(create _)
 }

@@ -8,11 +8,11 @@ import zio.{IO, ZIO, ZLayer}
 
 import scala.jdk.CollectionConverters._
 
-trait IFlywayMigrationService {
+trait FlywayMigrationService {
   def migrate(): IO[Throwable, Unit]
 }
 
-class FlywayMigrationService(private val config: HooklaConfig) extends IFlywayMigrationService {
+private class FlywayMigrationServiceImpl(private val config: HooklaConfig) extends FlywayMigrationService {
   private def logValidationErrorsIfAny(flywayConfig: FluentConfiguration): ZIO[Any, Throwable, Unit] =
     for {
       validated <- ZIO.succeed(flywayConfig.ignoreMigrationPatterns("*:pending").load().validateWithResult)
@@ -56,7 +56,7 @@ class FlywayMigrationService(private val config: HooklaConfig) extends IFlywayMi
 
 object FlywayMigrationService {
   private type In = HooklaConfig
-  private def create(config: HooklaConfig) = new FlywayMigrationService(config)
+  private def create(config: HooklaConfig) = new FlywayMigrationServiceImpl(config)
 
-  val live: ZLayer[In, Throwable, IFlywayMigrationService] = ZLayer.fromFunction(create _)
+  val live: ZLayer[In, Throwable, FlywayMigrationService] = ZLayer.fromFunction(create _)
 }
