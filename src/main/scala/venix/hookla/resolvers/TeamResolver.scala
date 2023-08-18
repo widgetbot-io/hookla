@@ -17,8 +17,8 @@ trait ITeamResolver {
   def create(name: String): Task[Team]
   def update(id: TeamId, name: String): Task[Team]
   def delete(id: TeamId): Task[Unit]
-  def addUser(id: TeamId, userId: UserId): Task[Unit]
-  def removeUser(id: TeamId, userId: UserId): Task[Unit]
+  def addMember(id: TeamId, userId: UserId): Task[Unit]
+  def removeMember(id: TeamId, userId: UserId): Task[Unit]
 
   // Resolvers
   def resolveMembers(id: TeamId): Result[List[User]]
@@ -63,13 +63,13 @@ class TeamResolver(
     }
   }
 
-  def addUser(id: TeamId, userId: UserId): Task[Unit] = Auth.currentUser.flatMap { user =>
+  def addMember(id: TeamId, userId: UserId): Task[Unit] = Auth.currentUser.flatMap { user =>
     teamService.getById(id).flatMap {
       case Some(team) =>
         teamService.getMembers(team.id).flatMap { members =>
           if (members.exists { case (u, isAdmin) => u.id == user.id && isAdmin }) {
             userService.getById(userId).flatMap {
-              case Some(user) => teamService.addUser(team.id, user.id)
+              case Some(user) => teamService.addMember(team.id, user.id)
               case _          => ZIO.fail(Forbidden("The user you are trying to add does not exist."))
             }
           } else {
@@ -80,13 +80,13 @@ class TeamResolver(
     }
   }
 
-  def removeUser(id: TeamId, userId: UserId): Task[Unit] = Auth.currentUser.flatMap { user =>
+  def removeMember(id: TeamId, userId: UserId): Task[Unit] = Auth.currentUser.flatMap { user =>
     teamService.getById(id).flatMap {
       case Some(team) =>
         teamService.getMembers(team.id).flatMap { members =>
           if (members.exists { case (u, isAdmin) => u.id == user.id && isAdmin }) {
             userService.getById(userId).flatMap {
-              case Some(user) => teamService.removeUser(team.id, user.id)
+              case Some(user) => teamService.removeMember(team.id, user.id)
               case _          => ZIO.fail(Forbidden("The user you are trying to remove does not exist."))
             }
           } else {
