@@ -5,6 +5,7 @@ import caliban.wrappers.ApolloTracing.apolloTracing
 import caliban.wrappers.Wrappers.{printErrors, timeout}
 import caliban._
 import caliban.schema._
+import venix.hookla.Args.CreateTeamArgs
 import venix.hookla.RequestError.{DatabaseError, InvalidRequest, InvalidRequestPayload, UnknownError}
 import venix.hookla.{CustomSchema, Env, Mutations, Queries, Result}
 import zio.{UIO, URIO, ZIO, ZLayer, durationInt}
@@ -36,6 +37,21 @@ class SchemaResolver(
       case UnknownError                   => ExecutionError("Something went wrong, please try again later.")
       case _                              => ExecutionError("Something went wrong, please don't try again later.")
     }
+
+  // Arguments
+  import venix.hookla.Args._
+  implicit val createTeamArgs: ArgBuilder[CreateTeamArgs]                     = ArgBuilder.gen[CreateTeamArgs]
+  implicit val createTeamArgsSchema: CustomSchema[CreateTeamArgs]             = gen[Env, CreateTeamArgs]
+  implicit val updateTeamArgs: ArgBuilder[UpdateTeamArgs]                     = ArgBuilder.gen[UpdateTeamArgs]
+  implicit val updateTeamArgsSchema: CustomSchema[UpdateTeamArgs]             = gen[Env, UpdateTeamArgs]
+  implicit val deleteTeamArgs: ArgBuilder[DeleteTeamArgs]                     = ArgBuilder.gen[DeleteTeamArgs]
+  implicit val deleteTeamArgsSchema: CustomSchema[DeleteTeamArgs]             = gen[Env, DeleteTeamArgs]
+  implicit val addTeamMemberArgs: ArgBuilder[AddTeamMemberArgs]               = ArgBuilder.gen[AddTeamMemberArgs]
+  implicit val addTeamMemberArgsSchema: CustomSchema[AddTeamMemberArgs]       = gen[Env, AddTeamMemberArgs]
+  implicit val updateTeamMemberArgs: ArgBuilder[UpdateTeamMemberArgs]         = ArgBuilder.gen[UpdateTeamMemberArgs]
+  implicit val updateTeamMemberArgsSchema: CustomSchema[UpdateTeamMemberArgs] = gen[Env, UpdateTeamMemberArgs]
+  implicit val removeTeamMemberArgs: ArgBuilder[RemoveTeamMemberArgs]         = ArgBuilder.gen[RemoveTeamMemberArgs]
+  implicit val removeTeamMemberArgsSchema: CustomSchema[RemoveTeamMemberArgs] = gen[Env, RemoveTeamMemberArgs]
 
   implicit lazy val userSchema: CustomSchema[User] = obj("User", None) { implicit ft =>
     List(
@@ -89,6 +105,7 @@ class SchemaResolver(
         updateTeam = args => teamResolver.update(TeamId(args.id), args.name),
         deleteTeam = args => teamResolver.delete(TeamId(args.id)),
         addTeamMember = args => teamResolver.addMember(TeamId(args.teamId), UserId(args.userId)),
+        updateTeamMember = args => teamResolver.updateMember(TeamId(args.teamId), UserId(args.userId), args.admin),
         removeTeamMember = args => teamResolver.removeMember(TeamId(args.teamId), UserId(args.userId))
       )
     )

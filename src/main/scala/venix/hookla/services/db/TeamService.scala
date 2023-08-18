@@ -14,6 +14,7 @@ trait ITeamService extends BaseDBService {
   def create(name: String, description: String, userId: UserId): Result[Team]
   def update(id: TeamId, name: Option[String], description: Option[String]): Result[Unit]
   def addMember(teamId: TeamId, userId: UserId, admin: Boolean = false): Result[Unit]
+  def updateMember(teamId: TeamId, userId: UserId, admin: Boolean): Result[Unit]
   def removeMember(teamId: TeamId, userId: UserId): Result[Unit]
   def delete(id: TeamId): Result[Unit]
 }
@@ -87,6 +88,16 @@ class TeamService(
           _.userId -> lift(userId),
           _.admin  -> lift(admin)
         )
+    }
+      .mapBoth(DatabaseError, _ => ())
+      .provide(ZLayer.succeed(ctx))
+
+  def updateMember(teamId: TeamId, userId: UserId, admin: Boolean) =
+    run {
+      teamUsers
+        .filter(_.teamId == lift(teamId))
+        .filter(_.userId == lift(userId))
+        .update(_.admin -> lift(admin))
     }
       .mapBoth(DatabaseError, _ => ())
       .provide(ZLayer.succeed(ctx))

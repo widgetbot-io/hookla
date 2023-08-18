@@ -1,7 +1,6 @@
 package venix.hookla
 
 import caliban.schema.Annotations._
-import venix.hookla.RequestError._
 import venix.hookla.entities._
 
 import java.util.UUID
@@ -11,6 +10,7 @@ object Args {
   case class UpdateTeamArgs(id: UUID, name: String)
   case class DeleteTeamArgs(id: UUID)
   case class AddTeamMemberArgs(teamId: UUID, userId: UUID)
+  case class UpdateTeamMemberArgs(teamId: UUID, userId: UUID, admin: Boolean)
   case class RemoveTeamMemberArgs(teamId: UUID, userId: UUID)
 }
 
@@ -36,6 +36,8 @@ final case class Mutations(
     deleteTeam: Args.DeleteTeamArgs => Task[Unit],
     @GQLDescription("Adds a user to a team")
     addTeamMember: Args.AddTeamMemberArgs => Task[Unit],
+    @GQLDescription("Updates a user's admin status in a team")
+    updateTeamMember: Args.UpdateTeamMemberArgs => Task[Unit],
     @GQLDescription("Removes a user from a team")
     removeTeamMember: Args.RemoveTeamMemberArgs => Task[Unit]
 )

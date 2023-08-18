@@ -18,6 +18,7 @@ trait ITeamResolver {
   def update(id: TeamId, name: String): Task[Team]
   def delete(id: TeamId): Task[Unit]
   def addMember(id: TeamId, userId: UserId): Task[Unit]
+  def updateMember(id: TeamId, userId: UserId, admin: Boolean): Task[Unit]
   def removeMember(id: TeamId, userId: UserId): Task[Unit]
 
   // Resolvers
@@ -77,6 +78,23 @@ class TeamResolver(
           }
         }
       case _ => ZIO.fail(Forbidden("You do not have the required permissions to add a user to this team."))
+    }
+  }
+
+  def updateMember(id: TeamId, userId: UserId, admin: Boolean): Task[Unit] = Auth.currentUser.flatMap { user =>
+    teamService.getById(id).flatMap {
+      case Some(team) =>
+        teamService.getMembers(team.id).flatMap { members =>
+          if (members.exists { case (u, isAdmin) => u.id == user.id && isAdmin }) {
+            userService.getById(userId).flatMap {
+              case Some(user) => teamService.updateMember(team.id, user.id, admin)
+              case _          => ZIO.fail(Forbidden("The user you are trying to update does not exist."))
+            }
+          } else {
+            ZIO.fail(Forbidden("You do not have the required permissions to update a user in this team."))
+          }
+        }
+      case _ => ZIO.fail(Forbidden("You do not have the required permissions to update a user in this team."))
     }
   }
 
