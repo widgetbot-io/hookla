@@ -39,11 +39,11 @@ private class WebhookControllerImpl(
     _    <- ZIO.fail(BadRequest("Invalid webhook ID.")) when hook.isEmpty
     // TODO: Update last used timestamp
 
-    handler <- SourceHandler.getHandlerById(hook.get.sourceId)
-    eventHandler = handler.determineEvent(request)
+    handler      <- SourceHandler.getHandlerById(hook.get.sourceId)
+    eventHandler <- handler.determineEvent(request)
 
     _ <- eventHandler.handle(request, hook.get)
-  } yield Json.obj("message" -> Json.fromString("")).spaces2).orElseFail("temp") // TODO: Fix out how to have better errors here.
+  } yield Json.obj("message" -> Json.fromString("Success!")).spaces2).mapError { e => println(e); "temp" } // TODO: Figure out how to have better errors here.
 
   private def webhookEndpoint = endpoint
     .in(extractFromRequest[Request](x => x.underlying.asInstanceOf[Request]))
