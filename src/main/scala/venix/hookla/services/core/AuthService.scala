@@ -7,7 +7,7 @@ import pdi.jwt.{JwtAlgorithm, JwtCirce, JwtClaim}
 import venix.hookla.RequestError.{DecodingError, RedisError, Unauthenticated, UnhandledError}
 import venix.hookla.{HooklaConfig, Result, Task}
 import venix.hookla.models.User
-import venix.hookla.services.db.IUserService
+import venix.hookla.services.db.UserService
 import venix.hookla.types.UserId
 import zio._
 import zio.redis.Redis
@@ -16,16 +16,16 @@ import java.time.Instant
 import java.util.UUID
 import scala.language.postfixOps
 
-trait IAuthService {
+trait AuthService {
   def createToken(user: User): Result[String]
   def decodeToken(token: String): Result[User]
 }
 
-class AuthService(
+private class AuthServiceImpl(
     private val config: HooklaConfig,
     private val redis: Redis,
-    private val userService: IUserService
-) extends IAuthService {
+    private val userService: UserService
+) extends AuthService {
   private case class AuthToken(id: UUID)
   implicit private val authTokenCodec: Codec[AuthToken] = io.circe.generic.semiauto.deriveCodec
 
@@ -70,10 +70,10 @@ class AuthService(
 }
 
 object AuthService {
-  private type In = HooklaConfig with Redis with IUserService
+  private type In = HooklaConfig with Redis with UserService
 
-  private def create(config: HooklaConfig, redis: Redis, userService: IUserService) = new AuthService(config, redis, userService)
+  private def create(config: HooklaConfig, redis: Redis, userService: UserService) = new AuthServiceImpl(config, redis, userService)
 
-  val live: ZLayer[In, Throwable, IAuthService] = ZLayer.fromFunction(create _)
-  def apply(): URIO[IAuthService, IAuthService] = ZIO.service[IAuthService]
+  val live: ZLayer[In, Throwable, AuthService] = ZLayer.fromFunction(create _)
+  def apply(): URIO[AuthService, AuthService]  = ZIO.service[AuthService]
 }

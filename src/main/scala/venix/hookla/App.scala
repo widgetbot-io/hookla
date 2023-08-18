@@ -27,10 +27,10 @@ object App extends ZIOAppDefault {
 
   private val app: ZIO[Env, Throwable, Unit] = for {
     _                <- ZIO.logInfo("Starting Hookla!")
-    migrationService <- ZIO.service[IFlywayMigrationService]
+    migrationService <- ZIO.service[FlywayMigrationService]
 //    _                <- migrationService.migrate().orDie
 
-    schemaResolver <- ZIO.service[ISchemaResolver]
+    schemaResolver <- ZIO.service[SchemaResolver]
     api = schemaResolver.graphQL
 
     apiInterpreter <- api.interpreter

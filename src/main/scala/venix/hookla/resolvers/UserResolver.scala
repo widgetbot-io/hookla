@@ -4,27 +4,23 @@ import venix.hookla.RequestError._
 import venix.hookla.{Result, Task}
 import venix.hookla.entities.{DiscordUser, Team, User}
 import venix.hookla.http.Auth
-import venix.hookla.services.db.{ITeamService, IUserService}
-import venix.hookla.services.http.IDiscordUserService
+import venix.hookla.services.db.{TeamService, UserService}
+import venix.hookla.services.http.DiscordUserService
 import venix.hookla.types.UserId
 import zio.{ZIO, ZLayer}
 
-import java.util.UUID
-
-trait IUserResolver {
-  // Queries
+trait UserResolver {
   def me: Task[User]
 
-  // Resolvers
   def resolveDiscordUser(discordId: String): Result[Option[DiscordUser]]
   def resolveTeams(userId: UserId): Task[List[Team]]
 }
 
-class UserResolver(
-    private val discordUserService: IDiscordUserService,
-    private val userService: IUserService,
-    private val teamService: ITeamService
-) extends IUserResolver {
+private class UserResolverImpl(
+    private val discordUserService: DiscordUserService,
+    private val userService: UserService,
+    private val teamService: TeamService
+) extends UserResolver {
   def me: Task[User] = Auth.currentUser.map(_.toEntity())
 
   def resolveDiscordUser(discordId: String): Result[Option[DiscordUser]] = discordUserService.get(discordId).map(_.map(_.toEntity))
@@ -38,10 +34,10 @@ class UserResolver(
 }
 
 object UserResolver {
-  private type In = IUserService with IDiscordUserService with ITeamService
-  private def create(userService: IUserService, discordUserService: IDiscordUserService, teamService: ITeamService) = new UserResolver(discordUserService, userService, teamService)
+  private type In = UserService with DiscordUserService with TeamService
+  private def create(userService: UserService, discordUserService: DiscordUserService, teamService: TeamService) = new UserResolverImpl(discordUserService, userService, teamService)
 
-  val live: ZLayer[In, Throwable, IUserResolver] = ZLayer.fromFunction(create _)
+  val live: ZLayer[In, Throwable, UserResolver] = ZLayer.fromFunction(create _)
 
-  def apply() = ZIO.service[IUserResolver]
+  def apply() = ZIO.service[UserResolver]
 }

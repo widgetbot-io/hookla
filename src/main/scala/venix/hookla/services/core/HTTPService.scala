@@ -18,15 +18,15 @@ case class Options(
   def addHeader(k: String, v: String): Options = copy(headers + (k -> v))
 }
 
-trait IHTTPService {
+trait HTTPService {
   def get[R](uri: Uri, options: Options = Options())(implicit decoder: Decoder[R]): Result[R]
   def post[B, R](uri: Uri, body: B, options: Options = Options())(implicit encoder: Encoder[B], decoder: Decoder[R]): Result[R]
   // TODO: Create DELETE, PATCH etc.
 }
 
-class HTTPService(
+private class HTTPServiceImpl(
     private val sttpBackend: SttpClient
-) extends IHTTPService {
+) extends HTTPService {
   private def toRequest[B](request: RequestT[Empty, Either[String, String], Any], method: Method, uri: Uri): Request[Either[String, String], Any] =
     request.method(method, uri)
 
@@ -92,7 +92,7 @@ class HTTPService(
 
 object HTTPService {
   private type In = SttpClient
-  private def create(client: SttpClient) = new HTTPService(client)
+  private def create(client: SttpClient) = new HTTPServiceImpl(client)
 
-  val live: ZLayer[In, Throwable, IHTTPService] = ZLayer.fromFunction(create _)
+  val live: ZLayer[In, Throwable, HTTPService] = ZLayer.fromFunction(create _)
 }

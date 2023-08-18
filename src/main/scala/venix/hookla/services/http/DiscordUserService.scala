@@ -4,7 +4,7 @@ import io.circe.Codec
 import io.circe.generic.semiauto._
 import sttp.client3.UriContext
 import venix.hookla.{HooklaConfig, Result}
-import venix.hookla.services.core.{IHTTPService, Options}
+import venix.hookla.services.core.{HTTPService, Options}
 import zio.ZLayer
 
 case class DiscordUser(
@@ -26,18 +26,17 @@ object DiscordUser {
   implicit val codec: Codec[DiscordUser] = deriveCodec
 }
 
-trait IDiscordUserService {
+trait DiscordUserService {
   def get(id: String): Result[Option[DiscordUser]]
 }
 
-class DiscordUserService(private val http: IHTTPService, private val config: HooklaConfig) extends IDiscordUserService {
+private class DiscordUserServiceImpl(private val http: HTTPService, private val config: HooklaConfig) extends DiscordUserService {
   def get(id: String): Result[Option[DiscordUser]] = http.get[Option[DiscordUser]](uri"https://discord.com/api/users/$id", Options().addHeader("Authorization", s"Bot ${config.discord.token}"))
 }
 
 object DiscordUserService {
-  private type In = IHTTPService with HooklaConfig
+  private type In = HTTPService with HooklaConfig
+  private def create(httpService: HTTPService, c: HooklaConfig) = new DiscordUserServiceImpl(httpService, c)
 
-  private def create(httpService: IHTTPService, c: HooklaConfig) = new DiscordUserService(httpService, c)
-
-  val live: ZLayer[In, Throwable, IDiscordUserService] = ZLayer.fromFunction(create _)
+  val live: ZLayer[In, Throwable, DiscordUserService] = ZLayer.fromFunction(create _)
 }

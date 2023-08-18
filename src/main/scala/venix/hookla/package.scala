@@ -6,9 +6,9 @@ import io.getquill.{MappedEncoding, SnakeCase}
 import sttp.client3.httpclient.zio.SttpClient
 import venix.hookla.http.Auth
 import venix.hookla.resolvers._
-import venix.hookla.services.core.{IAuthService, IHTTPService}
-import venix.hookla.services.db.{IFlywayMigrationService, IHookService, IUserService}
-import venix.hookla.services.http.IDiscordUserService
+import venix.hookla.services.core.{AuthService, HTTPService}
+import venix.hookla.services.db.{FlywayMigrationService, HookService, UserService}
+import venix.hookla.services.http.DiscordUserService
 import venix.hookla.types.RichNewtype
 import zio._
 import zio.http.Server
@@ -21,7 +21,7 @@ package object hookla {
 
   object QuillContext extends PostgresZioJAsyncContext(SnakeCase)
 
-  type Env = HooklaConfig with ZioJAsyncConnection with Redis with SttpClient with Auth with IUserResolver with IHookResolver with IHTTPService with IFlywayMigrationService with IDiscordUserService with ISinkResolver with ISourceResolver with ISchemaResolver with IUserResolver with IUserService with IHookService with IAuthService with Server
+  type Env = HooklaConfig with ZioJAsyncConnection with Redis with SttpClient with Auth with UserResolver with HookResolver with HTTPService with FlywayMigrationService with DiscordUserService with SinkResolver with SourceResolver with SchemaResolver with UserResolver with UserService with HookService with AuthService with Server
 
   type Result[T]       = IO[RequestError, T]
   type ResultOpt[T]    = IO[RequestError, Option[T]]
