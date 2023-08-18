@@ -3,7 +3,7 @@ package venix.hookla
 import caliban.CalibanError.ExecutionError
 import caliban.schema.Schema
 import io.getquill.context.zio.ZioJAsyncConnection
-import venix.hookla.resolvers.IUserResolver
+import venix.hookla.resolvers.UserResolver
 import zio.{IO, ZIO}
 
 sealed trait RequestError extends Throwable

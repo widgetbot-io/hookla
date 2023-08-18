@@ -1,31 +1,29 @@
 package venix.hookla.resolvers
 
 import caliban.CalibanError.ExecutionError
-import caliban.wrappers.ApolloTracing.apolloTracing
-import caliban.wrappers.Wrappers.{printErrors, timeout}
 import caliban._
 import caliban.schema._
-import venix.hookla.Args.CreateTeamArgs
+import caliban.wrappers.ApolloTracing.apolloTracing
+import caliban.wrappers.Wrappers.{printErrors, timeout}
 import venix.hookla.RequestError.{DatabaseError, InvalidRequest, InvalidRequestPayload, UnknownError}
-import venix.hookla.{CustomSchema, Env, Mutations, Queries, Result}
-import zio.{UIO, URIO, ZIO, ZLayer, durationInt}
 import venix.hookla.entities._
 import venix.hookla.types._
+import venix.hookla.{CustomSchema, Env, Mutations, Queries, Result}
+import zio.{ZLayer, durationInt}
 
-import java.util.UUID
 import scala.language.postfixOps
 
-trait ISchemaResolver {
+trait SchemaResolver {
   def graphQL: GraphQL[Env]
 }
 
-class SchemaResolver(
-    private val teamResolver: ITeamResolver,
-    private val userResolver: IUserResolver,
-    private val sourceResolver: ISourceResolver,
-    private val sinkResolver: ISinkResolver,
-    private val hookResolver: IHookResolver
-) extends ISchemaResolver
+private class SchemaResolverImpl(
+                                  private val teamResolver: TeamResolver,
+                                  private val userResolver: UserResolver,
+                                  private val sourceResolver: SourceResolver,
+                                  private val sinkResolver: SinkResolver,
+                                  private val hookResolver: HookResolver
+) extends SchemaResolver
     with GenericSchema[Env] {
 
   implicit def customEffectSchema[A: CustomSchema]: CustomSchema[Result[A]] =
@@ -112,8 +110,8 @@ class SchemaResolver(
 }
 
 object SchemaResolver {
-  private type In = ISourceResolver with ISinkResolver with IUserResolver with ITeamResolver with IHookResolver
-  private def create(sourceResolver: ISourceResolver, sinkResolver: ISinkResolver, userResolver: IUserResolver, d: ITeamResolver, e: IHookResolver) = new SchemaResolver(d, userResolver, sourceResolver, sinkResolver, e)
+  private type In = SourceResolver with SinkResolver with UserResolver with TeamResolver with HookResolver
+  private def create(sourceResolver: SourceResolver, sinkResolver: SinkResolver, userResolver: UserResolver, d: TeamResolver, e: HookResolver) = new SchemaResolverImpl(d, userResolver, sourceResolver, sinkResolver, e)
 
-  val live: ZLayer[In, Throwable, ISchemaResolver] = ZLayer.fromFunction(create _)
+  val live: ZLayer[In, Throwable, SchemaResolver] = ZLayer.fromFunction(create _)
 }

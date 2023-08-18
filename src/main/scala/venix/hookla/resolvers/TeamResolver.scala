@@ -9,7 +9,7 @@ import venix.hookla.services.http.DiscordUserService
 import venix.hookla.types.{TeamId, UserId}
 import zio.{ZIO, ZLayer}
 
-trait ITeamResolver {
+trait TeamResolver {
   // Queries
   def getForMe: Task[List[Team]]
 
@@ -26,12 +26,12 @@ trait ITeamResolver {
   def resolveHooks(id: TeamId): Result[List[Hook]]
 }
 
-class TeamResolver(
-                    private val discordUserService: DiscordUserService,
-                    private val userService: UserService,
-                    private val teamService: TeamService,
-                    private val hookService: HookService
-) extends ITeamResolver {
+private class TeamResolverImpl(
+    private val discordUserService: DiscordUserService,
+    private val userService: UserService,
+    private val teamService: TeamService,
+    private val hookService: HookService
+) extends TeamResolver {
   def getForMe: Task[List[Team]] = Auth.currentUser.flatMap(user => teamService.getTeamsForUser(user.id).map(_.map(_.toEntity)))
 
   def create(name: String): Task[Team] = Auth.currentUser.flatMap(user => teamService.create(name, "No description specified.", user.id).map(_.toEntity))
@@ -121,7 +121,7 @@ class TeamResolver(
 
 object TeamResolver {
   private type In = UserService with DiscordUserService with TeamService with HookService
-  private def create(userService: UserService, discordUserService: DiscordUserService, teamService: TeamService, hookService: HookService) = new TeamResolver(discordUserService, userService, teamService, hookService)
+  private def create(userService: UserService, discordUserService: DiscordUserService, teamService: TeamService, hookService: HookService) = new TeamResolverImpl(discordUserService, userService, teamService, hookService)
 
-  val live: ZLayer[In, Throwable, ITeamResolver] = ZLayer.fromFunction(create _)
+  val live: ZLayer[In, Throwable, TeamResolver] = ZLayer.fromFunction(create _)
 }

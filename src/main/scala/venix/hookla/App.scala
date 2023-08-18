@@ -30,7 +30,7 @@ object App extends ZIOAppDefault {
     migrationService <- ZIO.service[FlywayMigrationService]
 //    _                <- migrationService.migrate().orDie
 
-    schemaResolver <- ZIO.service[ISchemaResolver]
+    schemaResolver <- ZIO.service[SchemaResolver]
     api = schemaResolver.graphQL
 
     apiInterpreter <- api.interpreter

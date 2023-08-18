@@ -6,15 +6,15 @@ import venix.hookla.services.db.HookService
 import venix.hookla.types.HookId
 import zio.{UIO, ZIO, ZLayer}
 
-trait ISinkResolver {
+trait SinkResolver {
   def getAll: Result[List[Sink]]
 
   def resolveHook(sink: HookSink): Result[Hook]
 }
 
-class SinkResolver(
+private class SinkResolverImpl(
     private val hookService: HookService
-) extends ISinkResolver {
+) extends SinkResolver {
   def getAll: Result[List[Sink]] = ZIO.succeed(Nil)
 
   def resolveHook(sink: HookSink): Result[Hook] = hookService.getUnsafe(HookId(sink.hookId)).map(_.toEntity)
@@ -22,7 +22,7 @@ class SinkResolver(
 
 object SinkResolver {
   private type In = HookService
-  private def create(a: HookService) = new SinkResolver(a)
+  private def create(a: HookService) = new SinkResolverImpl(a)
 
-  val live: ZLayer[In, Throwable, ISinkResolver] = ZLayer.fromFunction(create _)
+  val live: ZLayer[In, Throwable, SinkResolver] = ZLayer.fromFunction(create _)
 }

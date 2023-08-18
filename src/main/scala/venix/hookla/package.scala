@@ -21,7 +21,7 @@ package object hookla {
 
   object QuillContext extends PostgresZioJAsyncContext(SnakeCase)
 
-  type Env = HooklaConfig with ZioJAsyncConnection with Redis with SttpClient with Auth with IUserResolver with IHookResolver with HTTPService with FlywayMigrationService with DiscordUserService with ISinkResolver with ISourceResolver with ISchemaResolver with IUserResolver with UserService with HookService with AuthService with Server
+  type Env = HooklaConfig with ZioJAsyncConnection with Redis with SttpClient with Auth with UserResolver with HookResolver with HTTPService with FlywayMigrationService with DiscordUserService with SinkResolver with SourceResolver with SchemaResolver with UserResolver with UserService with HookService with AuthService with Server
 
   type Result[T]       = IO[RequestError, T]
   type ResultOpt[T]    = IO[RequestError, Option[T]]
