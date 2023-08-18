@@ -1,11 +1,13 @@
 package venix.hookla.services.db
 
 import io.getquill.context.zio.ZioJAsyncConnection
+import venix.hookla.RequestError.DatabaseError
+import venix.hookla.Result
 import venix.hookla.types.UserId
-import zio.{Task, ZLayer}
+import zio.ZLayer
 
 trait IUserService extends BaseDBService {
-  def getById(id: UserId): Task[Option[User]]
+  def getById(id: UserId): Result[Option[User]]
 }
 
 class UserService(
@@ -13,11 +15,11 @@ class UserService(
 ) extends IUserService {
   import venix.hookla.QuillContext._
 
-  def getById(id: UserId): Task[Option[User]] =
+  def getById(id: UserId) =
     run {
       users.filter(_.id == lift(id))
     }
-      .map(_.headOption)
+      .mapBoth(DatabaseError, _.headOption)
       .provide(ZLayer.succeed(ctx))
 }
 
