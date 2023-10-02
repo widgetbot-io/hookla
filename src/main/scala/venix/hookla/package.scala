@@ -9,6 +9,7 @@ import venix.hookla.resolvers._
 import venix.hookla.services.core.{AuthService, HTTPService}
 import venix.hookla.services.db.{FlywayMigrationService, HookService, UserService}
 import venix.hookla.services.http.DiscordUserService
+import venix.hookla.sources.WebhookController
 import venix.hookla.types.RichNewtype
 import zio._
 import zio.http.Server
@@ -21,7 +22,7 @@ package object hookla {
 
   object QuillContext extends PostgresZioJAsyncContext(SnakeCase)
 
-  type Env = HooklaConfig with ZioJAsyncConnection with Redis with SttpClient with Auth with UserResolver with HookResolver with HTTPService with FlywayMigrationService with DiscordUserService with SinkResolver with SourceResolver with SchemaResolver with UserResolver with UserService with HookService with AuthService with Server
+  type Env = HooklaConfig with ZioJAsyncConnection with Redis with SttpClient with Auth with UserResolver with HookResolver with HTTPService with FlywayMigrationService with DiscordUserService with SinkResolver with SourceResolver with SchemaResolver with UserResolver with UserService with WebhookController with HookService with AuthService with Server
 
   type Result[T]       = IO[RequestError, T]
   type ResultOpt[T]    = IO[RequestError, Option[T]]

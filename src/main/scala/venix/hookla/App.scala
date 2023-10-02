@@ -8,12 +8,13 @@ import io.getquill.context.zio._
 import io.getquill.util.LoadConfig
 import sttp.client3.httpclient.zio.HttpClientZioBackend
 import sttp.tapir.json.circe._
-import venix.hookla.RequestError.Unauthenticated
+import venix.hookla.RequestError.{BadRequest, Forbidden, Unauthenticated}
 import venix.hookla.http.Auth
 import venix.hookla.resolvers._
 import venix.hookla.services.core._
 import venix.hookla.services.db._
 import venix.hookla.services.http.DiscordUserService
+import venix.hookla.sources.WebhookController
 import zio._
 import zio.http._
 import zio.logging.backend.SLF4J
@@ -30,17 +31,23 @@ object App extends ZIOAppDefault {
     migrationService <- ZIO.service[FlywayMigrationService]
 //    _                <- migrationService.migrate().orDie
 
-    schemaResolver <- ZIO.service[SchemaResolver]
+    webhookController <- ZIO.service[WebhookController]
+    schemaResolver    <- ZIO.service[SchemaResolver]
     api = schemaResolver.graphQL
 
     apiInterpreter <- api.interpreter
     app = Http
-      .collectHttp[Request] { case _ -> !! / "api" / "graphql" =>
-        ZHttpAdapter.makeHttpService(HttpInterpreter(apiInterpreter)) @@ Auth.middleware
+      .collectHttp[Request] {
+        case Method.POST -> !! / "api" / "v1" / "webhooks" / webhookId =>
+          webhookController.makeHttpService
+        case _ -> !! / "api" / "graphql" =>
+          ZHttpAdapter.makeHttpService(HttpInterpreter(apiInterpreter)) @@ Auth.middleware
       }
       .tapErrorCauseZIO(cause => ZIO.logErrorCause(cause))
       .mapError {
         case e: Unauthenticated => Response(status = Status.Unauthorized, body = Body.fromString(Json.obj("error" -> Json.fromString(e.message)).spaces2))
+        case e: Forbidden       => Response(status = Status.Forbidden, body = Body.fromString(Json.obj("error" -> Json.fromString(e.message)).spaces2))
+        case e: BadRequest      => Response(status = Status.BadRequest, body = Body.fromString(Json.obj("error" -> Json.fromString(e.message)).spaces2))
         case _                  => Response(status = Status.InternalServerError)
       }
 
@@ -81,6 +88,7 @@ object App extends ZIOAppDefault {
         HookResolver.live,
         HookService.live,
         TeamResolver.live,
+        WebhookController.live,
         // zhttp server config
         Server.defaultWithPort(8443),
         logger
