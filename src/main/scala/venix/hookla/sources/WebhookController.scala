@@ -1,6 +1,7 @@
 package venix.hookla.sources
 
 import io.circe.Json
+import io.circe.syntax._
 import sttp.tapir.{Endpoint, PublicEndpoint}
 import sttp.tapir.server.ziohttp.{ZioHttpInterpreter, ZioHttpServerOptions}
 import venix.hookla.Env
@@ -26,7 +27,7 @@ private class WebhookControllerImpl(
 ) extends WebhookController {
   // URI: /api/v1/handle/:hookId
   // Method: POST
-  private def handleWebhook(request: Request): ZIO[Env, String, String] = (for {
+  private def handleWebhook(request: Request, body: String): ZIO[Env, String, String] = (for {
     _ <- ZIO.unit // just to start the for comprehension
 
     maybeHookId = request.url.path.dropTrailingSlash.last
@@ -42,17 +43,23 @@ private class WebhookControllerImpl(
     handler      <- SourceHandler.getHandlerById(hook.get.sourceId)
     eventHandler <- handler.determineEvent(request)
 
-    _ <- eventHandler.handle(request, hook.get)
+    // TODO: This needs to be abstracted out to support non-JSON body's like the handler traits have.
+    jsonBody <- ZIO.attempt(body.asJson)
+
+    _ <- eventHandler
+      .asInstanceOf[GithubSourceEventHandler]
+      .handle(jsonBody, request.headers.map(x => x.headerName -> x.renderedValue).toMap, hook.get)
   } yield Json.obj("message" -> Json.fromString("Success!")).spaces2).mapError { e => println(e); "temp" } // TODO: Figure out how to have better errors here.
 
   private def webhookEndpoint = endpoint
     .in(extractFromRequest[Request](x => x.underlying.asInstanceOf[Request]))
+    .in(stringJsonBody)
     .errorOut(stringBody)
     .out(stringJsonBody)
 
   def makeHttpService[R](implicit serverOptions: ZioHttpServerOptions[R]): HttpApp[R & Env, Throwable] =
     ZioHttpInterpreter(serverOptions)
-      .toHttp(webhookEndpoint.zServerLogic(handleWebhook))
+      .toHttp(webhookEndpoint.zServerLogic(c => handleWebhook(c._1, c._2)))
 }
 
 object WebhookController {

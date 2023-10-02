@@ -2,7 +2,7 @@ package venix.hookla.sources
 
 import venix.hookla.Result
 import venix.hookla.sources.github.GithubSourceHandler
-import zio.{URIO, ZIO}
+import zio.{UIO, URIO, ZIO}
 import zio.http.Request
 
 private[sources] trait SourceHandler {
@@ -13,11 +13,11 @@ private[sources] trait SourceHandler {
    * The request is passed in so that the handler can determine the event type.
    * i.e. push, issue, deployment, etc...
    */
-  def determineEvent(req: Request): Result[SourceEventHandler]
+  def determineEvent(req: Request): Result[SourceEventHandler[_ <: Serializable]]
 }
 
 object SourceHandler {
-  def getHandlerById(id: String): URIO[Any, SourceHandler] =
+  def getHandlerById(id: String): UIO[SourceHandler] =
     id match {
       case "github" => ZIO.succeed(GithubSourceHandler)
     }
