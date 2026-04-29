@@ -1,24 +1,63 @@
-name: Docker
+name: "Build and Push"
 on:
   push:
     branches:
       - master
+    tags:
+      - "v*"
+  pull_request:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
 jobs:
   docker:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
     steps:
-      - uses: actions/checkout@v2
-      - uses: olafurpg/setup-scala@v10
-      - name: Clean any left-over files
-        run: sbt clean
-      - name: Login to docker
-        run: echo ${{ secrets.PAT }} | docker login ghcr.io --username yomanz --password-stdin
-      - name: Compile the project and push the docker image
-        run: |
-          sbt version
-          sbt compile
-          sbt docker:stage
-          cd target/docker/stage
-          docker build -t ghcr.io/widgetbot-io/hookla:${{github.sha}} -t ghcr.io/widgetbot-io/hookla:latest .
-          docker push ghcr.io/widgetbot-io/hookla:${{github.sha}}
-          docker push ghcr.io/widgetbot-io/hookla:latest
+      - uses: actions/checkout@v4
+      - uses: olafurpg/setup-scala@v11
+        with:
+          java-version: amazon-corretto@1.17.0-0.35.1
+      - name: Compile and build project
+        run: sbt clean compile docker:stage
+      - name: Log in to the Container registry
+        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha
+            type=raw,value=latest,enable=${{ startsWith(github.ref, 'refs/tags/v') }}
+            type=raw,value=staging,enable=${{ github.ref == 'refs/heads/master' }}
+      - name: Build and push Docker image
+        id: push
+        uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
+        with:
+          context: target/docker/stage
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: unsplash/comment-on-pr@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          msg: "Docker image built: `${{ steps.meta.outputs.version }}`"
+        continue-on-error: true
