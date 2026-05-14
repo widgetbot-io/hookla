@@ -1,0 +1,20 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: hookla
+  description: Hookla webhook delivery service.
+  annotations:
+    github.com/project-slug: widgetbot-io/hookla
+    backstage.io/techdocs-ref: dir:.
+    backstage.io/kubernetes-id: hookla
+  links:
+    - url: https://github.com/widgetbot-io/hookla
+      title: Source
+      icon: github
+  tags:
+    - side-projects
+spec:
+  type: service
+  lifecycle: production
+  owner: group:side-projects
+  system: side-projects
