@@ -5,6 +5,7 @@ metadata:
   description: Hookla webhook delivery service.
   annotations:
     github.com/project-slug: widgetbot-io/hookla
+    sentry.io/project-slug: hookla
     backstage.io/techdocs-ref: dir:.
     backstage.io/kubernetes-id: hookla
   links:
