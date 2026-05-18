@@ -2,9 +2,10 @@ apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
   name: hookla
-  description: Webhook relay service - converts provider webhooks into Discord embeds.
+  description: Hookla webhook delivery service.
   annotations:
     github.com/project-slug: widgetbot-io/hookla
+    sentry.io/project-slug: hookla
     backstage.io/techdocs-ref: dir:.
     backstage.io/kubernetes-id: hookla
   links:
@@ -12,10 +13,9 @@ metadata:
       title: Source
       icon: github
   tags:
-    - widgetbot
-    - scala
+    - side-projects
 spec:
   type: service
   lifecycle: production
-  owner: group:widgetbot
-  system: widgetbot
+  owner: group:side-projects
+  system: side-projects
